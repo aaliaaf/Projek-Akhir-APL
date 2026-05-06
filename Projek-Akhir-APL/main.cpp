@@ -2,7 +2,12 @@
 
 using namespace std;
 
-int main() {
-	cout << "Hello, World!" << endl;
+
+void Log(string message);
+
+int main() { 
+	Log("Hello World!");
+    cin.get();
 	return 0;
 }
+
