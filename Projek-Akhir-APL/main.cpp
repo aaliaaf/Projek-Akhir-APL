@@ -3,10 +3,8 @@
 using namespace std;
 
 
-void Log(string message);
-
 int main() { 
-	Log("Hello World!");
+	cout << "Hello World!" << endl;
     cin.get();
 	return 0;
 }
