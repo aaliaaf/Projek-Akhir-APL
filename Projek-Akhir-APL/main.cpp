@@ -23,6 +23,158 @@ void showWelcomeScreen() {
 	cout << "Please select an option: ";
 }
 
+void menuCustomer(string userId, vector<iPhone>& ip, vector<User>& usr,
+    vector<Reservasi>& res, vector<Transaksi>& trx) {
+
+    while (true) {
+        cout << "===========================================" << endl;
+        cout << "               MENU CUSTOMER               " << endl;
+        cout << "===========================================" << endl;
+        cout << "1. Lihat Daftar iPhone Tersedia" << endl;
+        cout << "2. Cari iPhone" << endl;
+        cout << "3. Buat Reservasi Baru" << endl;
+        cout << "4. Lihat Reservasi Aktif & Posisi Antrian" << endl;
+        cout << "5. Batalkan Reservasi" << endl;
+        cout << "6. Check-In (Kembalikan iPhone)" << endl;
+        cout << "7. Riwayat Transaksi Saya" << endl;
+        cout << "8. Profil Saya" << endl;
+        cout << "9. Logout" << endl;
+        cout << "===========================================" << endl;
+        cout << "Pilihan: ";
+
+        int pilihan;
+        cin >> pilihan;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (pilihan) {
+        case 1: {
+            filteriPhoneByStatus(ip, StatusiPhone::Tersedia);
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 2: {
+            cout << "\nMasukkan keyword (model/ID): ";
+            string keyword;
+            getline(cin, keyword);
+
+            iPhone* hasil = cariiPhone(ip, keyword);
+            if (hasil) {
+                tampilkanDetailiPhone(*hasil);
+            }
+            else {
+                cout << "iPhone tidak ditemukan.\n";
+            }
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 3: {
+            filteriPhoneByStatus(ip, StatusiPhone::Tersedia);
+
+            cout << "\nMasukkan ID iPhone yang ingin disewa: ";
+            string iphoneId;
+            getline(cin, iphoneId);
+
+            iPhone* target = cariiPhone(ip, iphoneId);
+            if (!target || target->status != StatusiPhone::Tersedia) {
+                cout << "iPhone tidak tersedia atau tidak ditemukan.\n";
+                break;
+            }
+
+            cout << "Tanggal Mulai (DD-MM-YYYY): ";
+            string tglMulai;
+            getline(cin, tglMulai);
+
+            cout << "Tanggal Selesai (DD-MM-YYYY): ";
+            string tglSelesai;
+            getline(cin, tglSelesai);
+
+            if (!validasiTanggal(tglMulai) || !validasiTanggal(tglSelesai)) {
+                cout << "Format tanggal tidak valid.\n";
+                break;
+            }
+            if (cekBentrok(target->jadwal, tglMulai, tglSelesai)) {
+                cout << "Jadwal bentrok dengan reservasi lain.\n";
+                break;
+            }
+
+            Reservasi baru;
+            baru.idReservasi = "RES-" + to_string(res.size() + 1);
+            baru.userId = userId;
+            baru.iPhoneId = iphoneId;
+            baru.tglMulai = tglMulai;
+            baru.tglSelesai = tglSelesai;
+            baru.isActive = true;
+            baru.waktuBooking = tanggalToInt(tglMulai);
+
+            res.push_back(baru);
+
+            JadwalSewa js{ tglMulai, tglSelesai };
+            target->jadwal.push_back(js);
+
+            urutkanAntrian(res, usr);
+            prosesAntrianOtomatis(res, ip, trx, usr);
+
+            cout << "Reservasi berhasil dibuat!\n";
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 4: {
+            cout << "\nReservasi Aktif Anda:\n";
+            bool ada = false;
+            for (auto& r : res) {
+                if (r.userId == userId && r.isActive) {
+                    tampilkanDetailReservasi(r);
+                    ada = true;
+                }
+            }
+            if (!ada) cout << "Tidak ada reservasi aktif.\n";
+            cout << "\nPosisi Antrian Anda:\n";
+            lihatPosisiAntrian(res, userId);
+
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 5: {
+            batalkanReservasi(res, ip, userId);
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 6: {
+            checkIniPhone(trx, ip, usr);
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 7: {
+            tampilkanRiwayatUser(trx, res, userId);
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 8: {
+            User* u = cariUser(usr, userId);
+            if (u) tampilkanDetailUser(*u);
+            cout << "\nTekan Enter untuk lanjut...";
+            cin.get();
+            break;
+        }
+        case 9: {
+            simpanData(ip, usr, res, trx);
+            cout << "\nLogout berhasil.\n";
+            return;
+        }
+        default:
+            cout << "Pilihan tidak valid.\n";
+            cin.get();
+        }
+    }
+}
+
 void mainApplicationMenu(string userId) {
 	int choice;
 	do {

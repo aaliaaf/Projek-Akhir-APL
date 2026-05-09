@@ -437,3 +437,264 @@ void updateStatusiPhone(iPhone* ptr, StatusiPhone baru) {
         ptr->status = baru;
     }
 }
+
+void tampilkanDetailTransaksi(const Transaksi& t) {
+    cout << "Transaksi: " << t.idTransaksi << " - " << t.iPhoneId << endl;
+}
+void header(const string& judul) {
+    cout << "=== " << judul << " ===\n";
+}
+
+void batalkanReservasi(vector<Reservasi>& antrian, vector<iPhone>& stok, string userId) {
+    cout << "===MEMBATALKAN RESERVASI===" << endl;
+    int jumlahAktif = 0;
+    for (int i = 0; i < antrian.size(); i++) {
+        if (antrian[i].userId == userId && antrian[i].isActive == true) {
+            if (jumlahAktif == 0) {
+                cout << "Reservasi aktif Anda:" << endl;
+                cout << "No | ID Reservasi | iPhone | Mulai      | Selesai" << endl;
+                cout << "---------------------------------------------------" << endl;
+            }
+            jumlahAktif++;
+            cout << jumlahAktif << "  | " << antrian[i].idReservasi << "       | " << antrian[i].iPhoneId << "   | " << antrian[i].tglMulai << " | " << antrian[i].tglSelesai << endl;
+        }
+    }
+    if (jumlahAktif == 0) {
+        cout << "Tidak ada reservasi yang bisa dibatalkan." << endl;
+        return;
+    }
+    string idInput;
+    cout << "\nMasukkan ID Reservasi yang mau dibatalkan: ";
+    cin >> idInput;
+
+    bool ketemu = false;
+    for (int i = 0; i < antrian.size(); i++) {
+        if (antrian[i].idReservasi == idInput && antrian[i].userId == userId && antrian[i].isActive == true) {
+            ketemu = true;
+
+            antrian[i].isActive = false;
+            cout << "Berhasil membatalkan reservasi: " << idInput << endl;
+
+            string iphoneIdBatal = antrian[i].iPhoneId;
+            string tglMulaiBatal = antrian[i].tglMulai;
+            string tglSelesaiBatal = antrian[i].tglSelesai;
+
+            for (int j = 0; j < stok.size(); j++) {
+                if (stok[j].id == iphoneIdBatal) {
+                    for (int k = 0; k < stok[j].jadwal.size(); k++) {
+                        if (stok[j].jadwal[k].tglMulai == tglMulaiBatal && stok[j].jadwal[k].tglSelesai == tglSelesaiBatal) {
+                            stok[j].jadwal.erase(stok[j].jadwal.begin() + k);
+                            cout << " Jadwal iPhone " << iphoneIdBatal << " sudah dihapus." << endl;
+                            break;
+                        }
+                    }
+                    if (stok[j].jadwal.size() == 0) {
+                        if (stok[j].status != StatusiPhone::Rusak && stok[j].status != StatusiPhone::Maintenance) {
+                            stok[j].status = StatusiPhone::Tersedia;
+                            cout << " Status iPhone " << iphoneIdBatal << " kembali jadi Tersedia." << endl;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    if (ketemu == false) {
+        cout << "ID Reservasi salah atau tidak ditemukan." << endl;
+    }
+}
+void batalkanReservasiByAdmin(vector<Reservasi>& antrian, vector<iPhone>& stok) {
+    cout << "===ADMIN: MEMBATALKAN RESERVASI===" << endl;
+
+    int jumlahAktif = 0;
+    for (int i = 0; i < antrian.size(); i++) {
+        if (antrian[i].isActive == true) {
+            if (jumlahAktif == 0) {
+                cout << "Semua Reservasi Aktif:" << endl;
+                cout << "No | ID Reservasi | User     | iPhone | Mulai      | Selesai" << endl;
+                cout << "---------------------------------------------------------------" << endl;
+            }
+            jumlahAktif++;
+            cout << jumlahAktif << "  | " << antrian[i].idReservasi << "       | " << antrian[i].userId << " | " << antrian[i].iPhoneId << "   | " << antrian[i].tglMulai << " | " << antrian[i].tglSelesai << endl;
+        }
+    }
+
+    if (jumlahAktif == 0) {
+        cout << "Tidak ada reservasi aktif di sistem." << endl;
+        return;
+    }
+    string idInput;
+    cout << "\nMasukkan ID Reservasi yang mau dibatalkan: ";
+    cin >> idInput;
+
+    bool ketemu = false;
+    for (int i = 0; i < antrian.size(); i++) {
+        if (antrian[i].idReservasi == idInput && antrian[i].isActive == true) {
+            ketemu = true;
+
+            antrian[i].isActive = false;
+            cout << "Admin berhasil membatalkan reservasi: " << idInput << endl;
+            string iphoneIdBatal = antrian[i].iPhoneId;
+            string tglMulaiBatal = antrian[i].tglMulai;
+            string tglSelesaiBatal = antrian[i].tglSelesai;
+
+            for (int j = 0; j < stok.size(); j++) {
+                if (stok[j].id == iphoneIdBatal) {
+                    for (int k = 0; k < stok[j].jadwal.size(); k++) {
+                        if (stok[j].jadwal[k].tglMulai == tglMulaiBatal && stok[j].jadwal[k].tglSelesai == tglSelesaiBatal) {
+                            stok[j].jadwal.erase(stok[j].jadwal.begin() + k);
+                            cout << "Jadwal iPhone " << iphoneIdBatal << " sudah dihapus." << endl;
+                            break;
+                        }
+                    }
+
+                    if (stok[j].jadwal.size() == 0) {
+                        if (stok[j].status != StatusiPhone::Rusak && stok[j].status != StatusiPhone::Maintenance) {
+                            stok[j].status = StatusiPhone::Tersedia;
+                            cout << " Status iPhone " << iphoneIdBatal << " kembali jadi Tersedia." << endl;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    if (ketemu == false) {
+        cout << "ID Reservasi tidak ditemukan atau sudah dibatalkan." << endl;
+    }
+}
+
+double hitungBiaya(const iPhone& ip, int durasi, int terlambat, UserLevel level) {
+    double dendaPerHari = 50000.0;
+    double diskonVIP = 0.10;
+    double diskonPremium = 0.05;
+    double diskonRegular = 0.0;
+
+    double biayaDasar = ip.hargaPerHari * durasi;
+    double totalDenda = terlambat * dendaPerHari;
+    double persentaseDiskon = 0.0;
+    if (level == UserLevel::VIP) {
+        persentaseDiskon = diskonVIP;
+    }
+    else if (level == UserLevel::Premium) {
+        persentaseDiskon = diskonPremium;
+    }
+    else {
+        persentaseDiskon = diskonRegular;
+    }
+
+    double biayaSetelahDiskon = biayaDasar - (biayaDasar * persentaseDiskon);
+    return biayaSetelahDiskon + totalDenda;
+}
+void checkIniPhone(vector<Transaksi>& histori, vector<iPhone>& stok, vector<User>& usr) {
+    cout << "\n=== CHECK IN iPHONE (PENGEMBALIAN) ===" << endl;
+
+    bool adaAktif = false;
+    for (int i = 0; i < histori.size(); i++) {
+        if (histori[i].tglKembali == "Belum") {
+            if (adaAktif == false) {
+                cout << "Transaksi Aktif (Belum Dikembalikan):\n";
+                cout << "ID Transaksi | iPhone ID | Tgl Mulai  | Tgl Selesai Rencana\n";
+                cout << "-----------------------------------------------------------\n";
+                adaAktif = true;
+            }
+            cout << histori[i].idTransaksi << "      | " << histori[i].iPhoneId
+                << "   | " << histori[i].tglMulai << " | " << histori[i].tglSelesai << endl;
+        }
+    }
+
+    if (adaAktif == false) {
+        cout << "Tidak ada transaksi yang perlu di-check in.\n";
+        return;
+    }
+
+    string idTrx;
+    cout << "\nMasukkan ID Transaksi untuk Check In: ";
+    cin >> idTrx;
+
+    bool ketemu = false;
+    for (int i = 0; i < histori.size(); i++) {
+        if (histori[i].idTransaksi == idTrx && histori[i].tglKembali == "Belum") {
+            ketemu = true;
+
+            string tglKembaliAktual;
+            cout << "Masukkan tanggal pengembalian aktual (YYYY-MM-DD): ";
+            cin >> tglKembaliAktual;
+
+            int durasiRencana = histori[i].durasi;
+            int durasiAktual = selisihHari(histori[i].tglMulai, tglKembaliAktual);
+            if (durasiAktual < 1) durasiAktual = 1;
+
+            int terlambat = durasiAktual - durasiRencana;
+            if (terlambat < 0) {
+                terlambat = 0;
+            }
+
+            iPhone* ptrHP = NULL;
+            UserLevel lvlUser = UserLevel::Regular;
+
+            for (int j = 0; j < stok.size(); j++) {
+                if (stok[j].id == histori[i].iPhoneId) {
+                    ptrHP = &stok[j];
+                    break;
+                }
+            }
+            for (int j = 0; j < usr.size(); j++) {
+                if (usr[j].id == histori[i].userId) {
+                    lvlUser = usr[j].level;
+                    break;
+                }
+            }
+
+            if (ptrHP == NULL) {
+                cout << "Data iPhone tidak ditemukan!\n";
+                return;
+            }
+
+            double totalFinal = hitungBiaya(*ptrHP, durasiAktual, terlambat, lvlUser);
+            double dendaFinal = terlambat * 50000.0;
+
+            histori[i].tglKembali = tglKembaliAktual;
+            histori[i].durasi = durasiAktual;
+            histori[i].biayaSewa = ptrHP->hargaPerHari * durasiAktual;
+            histori[i].denda = dendaFinal;
+            histori[i].totalBayar = totalFinal;
+
+            ptrHP->status = StatusiPhone::Tersedia;
+
+            for (int k = 0; k < ptrHP->jadwal.size(); k++) {
+                if (ptrHP->jadwal[k].tglMulai == histori[i].tglMulai &&
+                    ptrHP->jadwal[k].tglSelesai == histori[i].tglSelesai) {
+                    ptrHP->jadwal.erase(ptrHP->jadwal.begin() + k);
+                    break;
+                }
+            }
+
+            for (int j = 0; j < usr.size(); j++) {
+                if (usr[j].id == histori[i].userId) {
+                    usr[j].totalSewa++;
+                    break;
+                }
+            }
+
+            cout << "\nCHECK IN BERHASIL!" << endl;
+            cout << "----------------------------------------" << endl;
+            cout << "Durasi Rencana : " << durasiRencana << " hari" << endl;
+            cout << "Durasi Aktual  : " << durasiAktual << " hari" << endl;
+            cout << "Keterlambatan  : " << terlambat << " hari" << endl;
+            cout << "Biaya Sewa     : Rp " << histori[i].biayaSewa << endl;
+            cout << "Denda          : Rp " << histori[i].denda << endl;
+            cout << "TOTAL BAYAR    : Rp " << histori[i].totalPayar << endl;
+            cout << "----------------------------------------" << endl;
+            cout << "Status iPhone telah dikembalikan ke Tersedia.\n";
+            break;
+        }
+    }
+
+    if (ketemu == false) {
+        cout << "ID Transaksi tidak ditemukan atau sudah di-check in.\n";
+    }
+}
