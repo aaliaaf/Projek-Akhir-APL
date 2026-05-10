@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "../includes/helpers.h"
 #include <algorithm>
 #include <ctime>
@@ -23,7 +22,7 @@ double hitungBiaya(const iPhone& ip, int durasi, int terlambat, UserLevel level)
     return total;
 }
 
-void checkOutiPhone(vector<Reservasi>& antrian, vector<iPhone>& stok, vector<Transaksi>& histori, vector<User>& usr) {
+void checkOutiPhone(vector<Reservasi>& antrian, vector<iPhone>& stok, vector<Transaksi>& histori, const string& userId) {
     header("BUAT RESERVASI");
     (void)histori;
 
@@ -85,8 +84,6 @@ void checkOutiPhone(vector<Reservasi>& antrian, vector<iPhone>& stok, vector<Tra
     j.tglMulai = mulai;
     j.tglSelesai = selesai;
     selected.jadwal.push_back(j);
-
-    string userId = usr.empty() ? "UNKNOWN" : usr[0].id;
 
     Reservasi r;
     r.idReservasi = "R" + to_string(antrian.size() + 1);
@@ -308,63 +305,6 @@ void batalkanReservasiByAdmin(vector<Reservasi>& antrian, vector<iPhone>& stok) 
     }
     else {
         cout << "Reservasi sudah tidak aktif." << endl;
-    }
-}
-
-void tambahiPhone(vector<iPhone>& data) {
-    iPhone newIP;
-    newIP.id = "IPH" + to_string(data.size() + 1);
-
-    cout << "Model: ";
-    getline(cin >> ws, newIP.model);
-    cout << "Harga per hari: ";
-    cin >> newIP.hargaPerHari;
-    cout << "Kondisi: ";
-    getline(cin >> ws, newIP.kondisi);
-
-    newIP.status = StatusiPhone::Tersedia;
-    data.push_back(newIP);
-    cout << "iPhone berhasil ditambahkan! ID: " << newIP.id << endl;
-}
-
-void editiPhone(vector<iPhone>& data) {
-    string id;
-    cout << "Masukkan ID iPhone yang akan diedit: ";
-    cin >> id;
-
-    iPhone* ip = cariiPhone(data, id);
-    if (ip == nullptr) {
-        cout << "iPhone tidak ditemukan!" << endl;
-        return;
-    }
-
-    cout << "Model baru: ";
-    getline(cin >> ws, ip->model);
-    cout << "Harga baru: ";
-    cin >> ip->hargaPerHari;
-
-    cout << "iPhone berhasil diupdate!" << endl;
-}
-
-void hapusiPhone(vector<iPhone>& data) {
-    string id;
-    cout << "Masukkan ID iPhone yang akan dihapus: ";
-    cin >> id;
-
-    for (size_t i = 0; i < data.size(); i++) {
-        if (data[i].id == id) {
-            data.erase(data.begin() + i);
-            cout << "iPhone berhasil dihapus!" << endl;
-            return;
-        }
-    }
-
-    cout << "iPhone tidak ditemukan!" << endl;
-}
-
-void updateStatusiPhone(iPhone* ptr, StatusiPhone baru) {
-    if (ptr != nullptr) {
-        ptr->status = baru;
     }
 }
 

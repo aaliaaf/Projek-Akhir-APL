@@ -147,3 +147,60 @@ iPhone* cariiPhone(const vector<iPhone>& data, string keyword) {
     }
     return nullptr;
 }
+
+void tambahiPhone(vector<iPhone>& data) {
+    iPhone newIP;
+    newIP.id = "IPH" + to_string(data.size() + 1);
+
+    cout << "Model: ";
+    getline(cin >> ws, newIP.model);
+    cout << "Harga per hari: ";
+    cin >> newIP.hargaPerHari;
+    cout << "Kondisi: ";
+    getline(cin >> ws, newIP.kondisi);
+
+    newIP.status = StatusiPhone::Tersedia;
+    data.push_back(newIP);
+    cout << "iPhone berhasil ditambahkan! ID: " << newIP.id << endl;
+}
+
+void editiPhone(vector<iPhone>& data) {
+    string id;
+    cout << "Masukkan ID iPhone yang akan diedit: ";
+    cin >> id;
+
+    iPhone* ip = cariiPhone(data, id);
+    if (ip == nullptr) {
+        cout << "iPhone tidak ditemukan!" << endl;
+        return;
+    }
+
+    cout << "Model baru: ";
+    getline(cin >> ws, ip->model);
+    cout << "Harga baru: ";
+    cin >> ip->hargaPerHari;
+
+    cout << "iPhone berhasil diupdate!" << endl;
+}
+
+void hapusiPhone(vector<iPhone>& data) {
+    string id;
+    cout << "Masukkan ID iPhone yang akan dihapus: ";
+    cin >> id;
+
+    for (size_t i = 0; i < data.size(); i++) {
+        if (data[i].id == id) {
+            data.erase(data.begin() + i);
+            cout << "iPhone berhasil dihapus!" << endl;
+            return;
+        }
+    }
+
+    cout << "iPhone tidak ditemukan!" << endl;
+}
+
+void updateStatusiPhone(iPhone* ptr, StatusiPhone baru) {
+    if (ptr != nullptr) {
+        ptr->status = baru;
+    }
+}

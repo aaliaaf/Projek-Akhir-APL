@@ -1,9 +1,0 @@
-namespace ProjekAkhirAPL
-{
-    [default_interface]
-    runtimeclass users : Windows.UI.Xaml.Controls.Page
-    {
-        users();
-        Int32 MyProperty;
-    }
-}

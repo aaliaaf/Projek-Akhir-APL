@@ -45,7 +45,7 @@ void prosesAntrianOtomatis(vector<Reservasi> &antrian, vector<iPhone> &stok,
 
 // Transaction & Cost
 void checkOutiPhone(vector<Reservasi> &antrian, vector<iPhone> &stok, vector<Transaksi> &histori,
-                    vector<User> &usr);
+                    const string &userId);
 void checkIniPhone(vector<Transaksi> &histori, vector<iPhone> &stok, vector<User> &usr);
 void batalkanReservasi(vector<Reservasi> &antrian, vector<iPhone> &stok, string userId);
 void batalkanReservasiByAdmin(vector<Reservasi> &antrian, vector<iPhone> &stok);
@@ -73,4 +73,3 @@ void simpanData(const vector<iPhone> &ip, const vector<User> &usr, const vector<
 // UI
 void header(const string &judul);
 string prosesLogin(vector<User> &users);
-

@@ -2,7 +2,7 @@
 #include <string>
 #include <limits>
 #include <vector>
-#include "includes/helpers.h"
+#include "../includes/helpers.h"
 
 using namespace std;
 
@@ -396,56 +396,6 @@ void menuCustomer(string userId, vector<iPhone>& ip, vector<User>& usr,
     }
 }
 
-void mainApplicationMenu(string userId) {
-	int choice;
-	do {
-		cout << endl;
-		cout << "=======================================" << endl;
-		cout << "             MENU CUSTOMER" << endl;
-		cout << "=======================================" << endl;
-		cout << "1. Informasi iPhone" << endl;
-		cout << "2. Reservasi" << endl;
-		cout << "3. Penyewaan Aktif" << endl;
-		cout << "4. Riwayat" << endl;
-		cout << "5. Logout" << endl;
-		cout << "Pilihan: ";
-
-		while (!(cin >> choice)) {
-			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			cout << "Input tidak valid. Silakan masukkan angka: ";
-		}
-
-		switch (choice) {
-		case 1:
-			cout << "Membuka Informasi iPhone..." << endl;
-			tampilkaniPhone(iphonesDB);
-			break;
-		case 2:
-			cout << "Membuka Reservasi..." << endl;
-			checkOutiPhone(reservasiDB, iphonesDB, transaksiDB, usersDB);
-			simpanData(iphonesDB, usersDB, reservasiDB, transaksiDB);
-			break;
-		case 3:
-			cout << "Membuka Penyewaan Aktif..." << endl;
-			checkIniPhone(transaksiDB, iphonesDB, usersDB);
-			simpanData(iphonesDB, usersDB, reservasiDB, transaksiDB);
-			break;
-		case 4:
-			cout << "Membuka Riwayat..." << endl;
-			tampilkanRiwayatUser(transaksiDB, reservasiDB, userId);
-			cout << endl;
-			lihatPosisiAntrian(reservasiDB, userId);
-			break;
-		case 5:
-			cout << "Logging out..." << endl;
-			break;
-		default:
-			cout << "Pilihan tidak valid. Silakan coba lagi." << endl;
-		}
-	} while (choice != 5);
-}
-
 void menuAdmin(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vector<Transaksi>& trx) {
     while (true) {
         cout << "===========================================" << endl;
@@ -568,7 +518,3 @@ int main() {
 
 	return 0;
 }
-
-
-
-
