@@ -1,51 +1,56 @@
-#pragma once
+// MODUL 8: Include Guards (#ifndef/#define/#endif)
+// MODUL 2: Struct dan Nested Struct (JadwalSewa di dalam iPhone)
+#ifndef STRUCTS_H
+#define STRUCTS_H
+
 #include "constants.h"
 #include <string>
 #include <vector>
-using namespace std;
 
 struct JadwalSewa {
-    string tglMulai;
-    string tglSelesai;
+    std::string tglMulai;
+    std::string tglSelesai;
 };
 
 struct iPhone {
-    string id;
-    string model;
+    std::string id;
+    std::string model;
     double hargaPerHari;
     StatusiPhone status;
-    string kondisi;
-    vector<JadwalSewa> jadwal;
+    std::string kondisi;
+    std::vector<JadwalSewa> jadwal;
 };
 
 struct User {
-    string id;
-    string username;
-    string password;
-    string role; // "Admin" atau "Customer"
+    std::string id;
+    std::string username;
+    std::string password;
+    std::string role;
     UserLevel level;
     int totalSewa;
 };
 
 struct Reservasi {
-    string idReservasi;
-    string userId;
-    string iPhoneId;
-    string tglMulai;
-    string tglSelesai;
+    std::string idReservasi;
+    std::string userId;
+    std::string iPhoneId;
+    std::string tglMulai;
+    std::string tglSelesai;
     bool isActive;
     int waktuBooking;
 };
 
 struct Transaksi {
-    string idTransaksi;
-    string userId;
-    string iPhoneId;
-    string tglMulai;
-    string tglSelesai;
-    string tglKembali;
+    std::string idTransaksi;
+    std::string userId;
+    std::string iPhoneId;
+    std::string tglMulai;
+    std::string tglSelesai;
+    std::string tglKembali;
     int durasi;
     double biayaSewa;
     double denda;
     double totalBayar;
 };
+
+#endif

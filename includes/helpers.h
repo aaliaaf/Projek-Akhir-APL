@@ -1,75 +1,96 @@
-#pragma once
+// MODUL 8: Include Guards
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include "structs.h"
+#include "my_library.h"
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
+#include <stdexcept>
 
-// Role Routing
-void menuAdmin(vector<iPhone> &ip, vector<User> &usr, vector<Reservasi> &res,
-               vector<Transaksi> &trx);
-void menuCustomer(string userId, vector<iPhone> &ip, vector<User> &usr, vector<Reservasi> &res,
-                  vector<Transaksi> &trx);
+// ========== ROLE ROUTING ==========
+void menuAdmin(std::vector<iPhone>& ip, std::vector<User>& usr,
+               std::vector<Reservasi>& res, std::vector<Transaksi>& trx);
+void menuCustomer(std::string userId, std::vector<iPhone>& ip,
+                  std::vector<User>& usr, std::vector<Reservasi>& res,
+                  std::vector<Transaksi>& trx);
 
-// Core Rental (Admin & Customer)
-void tambahiPhone(vector<iPhone> &data);
-void editiPhone(vector<iPhone> &data);
-void hapusiPhone(vector<iPhone> &data);
-void tampilkaniPhone(const vector<iPhone> &data);
-void tampilkanDetailiPhone(const iPhone &ip);
-void filteriPhoneByStatus(const vector<iPhone> &data, StatusiPhone status);
-iPhone *cariiPhone(const vector<iPhone> &data, string keyword);
-void updateStatusiPhone(iPhone *ptr, StatusiPhone baru);
+// ========== CORE RENTAL (CRUD iPhone) ==========
+void tambahiPhone(std::vector<iPhone>& data);
+void editiPhone(std::vector<iPhone>& data);
+void hapusiPhone(std::vector<iPhone>& data);
+void tampilkaniPhone(const std::vector<iPhone>& data);
+void tampilkanDetailiPhone(const iPhone& ip);
+void filteriPhoneByStatus(const std::vector<iPhone>& data, StatusiPhone status);
 
-// User Manager (Admin & Customer)
-extern vector<User> usersDB;
-bool login(string& outUserId, string& outRole);
+// MODUL 6: Binary Search untuk pencarian iPhone
+iPhone* cariiPhoneBinary(std::vector<iPhone>& data, const std::string& id);
+iPhone* cariiPhone(const std::vector<iPhone>& data, std::string keyword);
+void sortiPhoneByID(std::vector<iPhone>& data);
+
+// ========== USER MANAGER ==========
+extern std::vector<User> usersDB;
+bool login(std::string& outUserId, std::string& outRole);
 void registerUser();
-void tambahUser(vector<User> &data);
-void editUser(vector<User> &data);
-void hapusUser(vector<User> &data);
-void registerUser(vector<User> &data);
-User *cariUser(const vector<User> &data, string id);
-void tampilkanRiwayatUser(const vector<Transaksi> &trx, const vector<Reservasi> &res,
-                          string userId);
-void lihatPosisiAntrian(const vector<Reservasi> &res, string userId);
-void tampilkanDetailUser(const User &u);
-void tampilkanDetailReservasi(const Reservasi &r);
-void tampilkanDetailTransaksi(const Transaksi &t);
+void registerUser(std::vector<User>& data);
+void tambahUser(std::vector<User>& data);
+void editUser(std::vector<User>& data);
+void hapusUser(std::vector<User>& data);
+User* cariUser(const std::vector<User>& data, std::string id);
+void tampilkanRiwayatUser(const std::vector<Transaksi>& trx,
+                          const std::vector<Reservasi>& res, std::string userId);
+void lihatPosisiAntrian(const std::vector<Reservasi>& res, std::string userId);
+void tampilkanDetailUser(const User& u);
+void tampilkanDetailReservasi(const Reservasi& r);
 
-// Priority & Queue (Admin & Customer)
-void urutkanAntrian(vector<Reservasi> &antrian, vector<User> &usr);
-void prosesAntrianOtomatis(vector<Reservasi> &antrian, vector<iPhone> &stok,
-                           vector<Transaksi> &histori, vector<User> &usr);
+// ========== PRIORITY & QUEUE ==========
+// MODUL 6: Interpolation Search untuk Reservasi
+void urutkanAntrian(std::vector<Reservasi>& antrian, std::vector<User>& usr);
+void prosesAntrianOtomatis(std::vector<Reservasi>& antrian,
+                           std::vector<iPhone>& stok,
+                           std::vector<Transaksi>& histori,
+                           std::vector<User>& usr);
+int cariReservasiInterpolation(const std::vector<Reservasi>& antrian,
+                                int waktuBooking);
 
-// Transaction & Cost
-void checkOutiPhone(vector<Reservasi> &antrian, vector<iPhone> &stok, vector<Transaksi> &histori,
-                    const string &userId);
-void checkIniPhone(vector<Transaksi> &histori, vector<iPhone> &stok, vector<User> &usr);
-void batalkanReservasi(vector<Reservasi> &antrian, vector<iPhone> &stok, string userId);
-void batalkanReservasiByAdmin(vector<Reservasi> &antrian, vector<iPhone> &stok);
-double hitungBiaya(const iPhone &ip, int durasi, int terlambat, UserLevel level);
+// ========== TRANSACTION & COST ==========
+void checkIniPhone(std::vector<Transaksi>& histori, std::vector<iPhone>& stok,
+                   std::vector<User>& usr);
+void batalkanReservasi(std::vector<Reservasi>& antrian, std::vector<iPhone>& stok,
+                       std::string userId);
+void batalkanReservasiByAdmin(std::vector<Reservasi>& antrian,
+                              std::vector<iPhone>& stok);
+double hitungBiaya(const iPhone& ip, int durasi, int terlambat, UserLevel level);
 
-// Reports (Admin Only)
-void laporanPendapatan(const vector<Transaksi> &histori);
-void laporaniPhonePopuler(const vector<Transaksi> &histori);
-void laporanUserAktif(const vector<Transaksi> &histori, const vector<User> &users);
-void laporanPendapatanPerBulan(const vector<Transaksi> &histori);
-void laporanOkupansiIphone(const vector<Transaksi> &histori, const vector<iPhone> &iphones);
-void laporanKonversiReservasi(const vector<Reservasi> &reservasi, const vector<Transaksi> &histori);
-void laporanTopUserBySpending(const vector<Transaksi> &histori, const vector<User> &users);
+// ========== REPORTS (Admin Only) ==========
+void laporanPendapatan(const std::vector<Transaksi>& histori);
+void laporaniPhonePopuler(const std::vector<Transaksi>& histori);
+void laporanUserAktif(const std::vector<Transaksi>& histori,
+                      const std::vector<User>& users);
+void laporanPendapatanPerBulan(const std::vector<Transaksi>& histori);
+void laporanOkupansiIphone(const std::vector<Transaksi>& histori,
+                           const std::vector<iPhone>& iphones);
+void laporanKonversiReservasi(const std::vector<Reservasi>& reservasi,
+                              const std::vector<Transaksi>& histori);
+void laporanTopUserBySpending(const std::vector<Transaksi>& histori,
+                              const std::vector<User>& users);
 
-// Validator & I/O
-bool validasiTanggal(string tgl);
-int tanggalToInt(string tgl);
-int selisihHari(string mulai, string selesai);
-bool cekBentrok(const vector<JadwalSewa> &jadwal, string mulai, string selesai);
-void loadData(vector<iPhone> &ip, vector<User> &usr, vector<Reservasi> &res,
-              vector<Transaksi> &trx);
-void simpanData(const vector<iPhone> &ip, const vector<User> &usr, const vector<Reservasi> &res,
-                const vector<Transaksi> &trx);
+// ========== VALIDATOR & I/O ==========
+// MODUL 8: Fungsi dengan try/catch/throw
+bool validasiTanggal(std::string tgl);
+int tanggalToInt(std::string tgl);
+int selisihHari(std::string mulai, std::string selesai);
+bool cekBentrok(const std::vector<JadwalSewa>& jadwal,
+                std::string mulai, std::string selesai);
+void loadData(std::vector<iPhone>& ip, std::vector<User>& usr,
+              std::vector<Reservasi>& res, std::vector<Transaksi>& trx);
+void simpanData(const std::vector<iPhone>& ip, const std::vector<User>& usr,
+                const std::vector<Reservasi>& res,
+                const std::vector<Transaksi>& trx);
 
-// UI
-void header(const string &judul);
-string prosesLogin(vector<User> &users);
+// ========== UI ==========
+void header(const std::string& judul);
+
+#endif

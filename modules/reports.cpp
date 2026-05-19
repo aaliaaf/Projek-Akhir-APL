@@ -1,3 +1,7 @@
+// MODUL 1-3: Variabel, perulangan, fungsi, vector
+// MODUL 5: Sorting menggunakan <algorithm> sort dengan lambda
+// MODUL 8: <algorithm>, <map>, <vector>, <iomanip> setprecision
+
 #include "../includes/helpers.h"
 #include <algorithm>
 #include <map>
@@ -131,11 +135,23 @@ void laporanPendapatanPerBulan(const vector<Transaksi>& histori) {
 	cout.unsetf(ios::floatfield);
 }
 
+// MODUL 2: Array 2D — occupancy matrix (model × bulan)
 void laporanOkupansiIphone(const vector<Transaksi>& histori, const vector<iPhone>& iphones) {
 	header("LAPORAN OKUPANSI IPHONE");
 
-	map<string, int> hariSewaPerIphone;
-	int totalHariSewa = 0;
+	if (iphones.empty()) {
+		cout << "Data iPhone kosong.\n";
+		return;
+	}
+
+	// MODUL 2: Array 2D — baris = model iPhone, kolom = bulan (1..12)
+	// occupancy[modelIdx][bulan] = total hari sewa di bulan itu
+	const int MAX_MODEL = 50;
+	const int BULAN_COUNT = 12;
+	int occupancy[MAX_MODEL][BULAN_COUNT] = {0};
+	int totalHariSewa[MAX_MODEL] = {0};
+
+	int modelCount = min((int)iphones.size(), MAX_MODEL);
 
 	for (size_t i = 0; i < histori.size(); i++) {
 		int durasi = histori[i].durasi;
@@ -144,25 +160,53 @@ void laporanOkupansiIphone(const vector<Transaksi>& histori, const vector<iPhone
 		}
 		if (durasi <= 0) durasi = 1;
 
-		hariSewaPerIphone[histori[i].iPhoneId] += durasi;
-		totalHariSewa += durasi;
+		for (int m = 0; m < modelCount; m++) {
+			if (iphones[m].id == histori[i].iPhoneId) {
+				int bulan = 0;
+				if (histori[i].tglMulai.size() >= 7) {
+					bulan = stoi(histori[i].tglMulai.substr(5, 2));
+				}
+				if (bulan >= 1 && bulan <= 12) {
+					occupancy[m][bulan - 1] += durasi; // MODUL 2: akses array 2D
+				}
+				totalHariSewa[m] += durasi;
+				break;
+			}
+		}
 	}
 
-	if (iphones.empty()) {
-		cout << "Data iPhone kosong.\n";
-		return;
+	// Tabel ringkasan
+	cout << "ID iPhone | Model         | Total Hari | Kontribusi\n";
+	cout << fixed << setprecision(1);
+	int grandTotal = 0;
+	for (int m = 0; m < modelCount; m++) {
+		grandTotal += totalHariSewa[m];
+	}
+	for (int m = 0; m < modelCount; m++) {
+		double kontribusi = (grandTotal > 0) ? (100.0 * totalHariSewa[m] / grandTotal) : 0.0;
+		cout << left << setw(10) << iphones[m].id << " | "
+			 << setw(14) << iphones[m].model << " | "
+			 << setw(10) << totalHariSewa[m] << " | "
+			 << kontribusi << "%" << endl;
 	}
 
-	cout << "ID iPhone | Model | Total Hari Disewa | Kontribusi\n";
-	cout << fixed << setprecision(2);
-	for (size_t i = 0; i < iphones.size(); i++) {
-		int hariSewa = hariSewaPerIphone[iphones[i].id];
-		double kontribusi = (totalHariSewa > 0) ? (100.0 * hariSewa / totalHariSewa) : 0.0;
-
-		cout << iphones[i].id
-			 << " | " << iphones[i].model
-			 << " | " << hariSewa
-			 << " | " << kontribusi << "%" << endl;
+	// MODUL 2: Tampilkan matrix 2D (model × bulan)
+	cout << "\n--- Matriks Okupansi per Bulan (hari sewa) ---\n";
+	cout << left << setw(14) << "Model";
+	for (int b = 0; b < BULAN_COUNT; b++) {
+		cout << " | " << setw(3) << left << ("B" + to_string(b + 1));
+	}
+	cout << "\n" << string(14 + BULAN_COUNT * 7, '-') << "\n";
+	for (int m = 0; m < modelCount; m++) {
+		cout << left << setw(14) << iphones[m].model;
+		for (int b = 0; b < BULAN_COUNT; b++) {
+			if (occupancy[m][b] > 0) {
+				cout << " | " << setw(3) << left << occupancy[m][b];
+			} else {
+				cout << " | " << setw(3) << left << "-";
+			}
+		}
+		cout << "\n";
 	}
 	cout.unsetf(ios::floatfield);
 }

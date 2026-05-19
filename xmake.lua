@@ -8,6 +8,12 @@ set_languages("c++17")
 -- Add compiler flags
 add_cxxflags("-Wall", "-Wextra")
 
+-- Debug mode: enable ASSERT macros
+if is_mode("debug") then
+    add_defines("DEBUG")
+    set_symbols("debug")
+end
+
 -- Define the executable target
 target("app")
     -- Set target type to console application
@@ -25,6 +31,7 @@ target("app")
         "modules/transactions.cpp",
         "modules/user_manager.cpp",
         "utils/file_io.cpp",
+        "utils/my_library.cpp",
         "utils/validator.cpp"
     )
     

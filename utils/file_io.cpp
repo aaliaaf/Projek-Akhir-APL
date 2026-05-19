@@ -1,7 +1,39 @@
+// MODUL 7: File I/O menggunakan <fstream> untuk baca/tulis CSV
+// MODUL 8: <filesystem> (C++17), <fstream>, <sstream>, exception handling
+// BONUS: Persistensi data CSV
+
 #include "../includes/helpers.h"
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 using namespace std;
+
+namespace {
+namespace fs = std::filesystem;
+
+fs::path resolveDataDirectory() {
+    fs::path current = fs::current_path();
+
+    for (int depth = 0; depth < 8; ++depth) {
+        fs::path candidate = current / "data";
+        if (fs::exists(candidate) && fs::is_directory(candidate)) {
+            return candidate;
+        }
+        if (!current.has_parent_path() || current == current.parent_path()) {
+            break;
+        }
+        current = current.parent_path();
+    }
+
+    fs::path fallback = fs::current_path() / "data";
+    fs::create_directories(fallback);
+    return fallback;
+}
+
+fs::path dataFilePath(const string& fileName) {
+    return resolveDataDirectory() / fileName;
+}
+}
 
 void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vector<Transaksi>& trx) {
     auto safe_stod = [](const string& s)->double { try { if (s.empty()) return 0.0; return stod(s); } catch(...) { return 0.0; } };
@@ -9,7 +41,7 @@ void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vec
     auto safe_bool = [](const string& s)->bool { return (s == "1" || s=="true" || s=="TRUE"); };
     // Load iPhones
     {
-        ifstream fin(DATA_FOLDER + "iphones.csv");
+        ifstream fin(dataFilePath("iphones.csv"));
         if (!fin.is_open()) { cout << "[INFO] iphones.csv not found. Using empty iPhone list.\n"; }
         else {
             string line; bool first=true;
@@ -28,7 +60,7 @@ void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vec
     }
     // Load Users
     {
-        ifstream fin(DATA_FOLDER + "users.csv");
+        ifstream fin(dataFilePath("users.csv"));
         if (!fin.is_open()) { cout << "[INFO] users.csv not found. Using empty user list.\n"; }
         else {
             string line; bool first=true;
@@ -47,7 +79,7 @@ void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vec
     }
     // Load Reservations
     {
-        ifstream fin(DATA_FOLDER + "reservations.csv");
+        ifstream fin(dataFilePath("reservations.csv"));
         if (!fin.is_open()) { cout << "[INFO] reservations.csv not found. Using empty reservations list.\n"; }
         else {
             string line; bool first=true;
@@ -65,7 +97,7 @@ void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vec
     }
     // Load Transactions
     {
-        ifstream fin(DATA_FOLDER + "transactions.csv");
+        ifstream fin(dataFilePath("transactions.csv"));
         if (!fin.is_open()) { cout << "[INFO] transactions.csv not found. Using empty transactions list.\n"; }
         else {
             string line; bool first=true;
@@ -90,28 +122,28 @@ void loadData(vector<iPhone>& ip, vector<User>& usr, vector<Reservasi>& res, vec
 void simpanData(const vector<iPhone>& ip, const vector<User>& usr, const vector<Reservasi>& res, const vector<Transaksi>& trx) {
     // Save iPhones
     {
-        ofstream fout(DATA_FOLDER + "iphones.csv");
+        ofstream fout(dataFilePath("iphones.csv"));
         fout << "id,model,hargaPerHari,status,kondisi\n";
         for (auto& i : ip) fout << i.id << "," << i.model << "," << i.hargaPerHari << "," << (int)i.status << "," << i.kondisi << "\n";
         fout.close();
     }
     // Save Users
     {
-        ofstream fout(DATA_FOLDER + "users.csv");
+        ofstream fout(dataFilePath("users.csv"));
         fout << "id,username,password,role,level,totalSewa\n";
         for (auto& u : usr) fout << u.id << "," << u.username << "," << u.password << "," << u.role << "," << (int)u.level << "," << u.totalSewa << "\n";
         fout.close();
     }
     // Save Reservations
     {
-        ofstream fout(DATA_FOLDER + "reservations.csv");
+        ofstream fout(dataFilePath("reservations.csv"));
         fout << "idReservasi,userId,iPhoneId,tglMulai,tglSelesai,isActive,waktuBooking\n";
         for (auto& r : res) fout << r.idReservasi << "," << r.userId << "," << r.iPhoneId << "," << r.tglMulai << "," << r.tglSelesai << "," << (r.isActive?"1":"0") << "," << r.waktuBooking << "\n";
         fout.close();
     }
     // Save Transactions
     {
-        ofstream fout(DATA_FOLDER + "transactions.csv");
+        ofstream fout(dataFilePath("transactions.csv"));
         fout << "idTransaksi,userId,iPhoneId,tglMulai,tglSelesai,tglKembali,durasi,biayaSewa,denda,totalBayar\n";
         for (auto& t : trx) fout << t.idTransaksi << "," << t.userId << "," << t.iPhoneId << "," << t.tglMulai << "," << t.tglSelesai << "," << t.tglKembali << "," << t.durasi << "," << t.biayaSewa << "," << t.denda << "," << t.totalBayar << "\n";
         fout.close();
