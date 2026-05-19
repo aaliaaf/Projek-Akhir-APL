@@ -96,6 +96,21 @@ void saveRentals() {
 }
 
 void sewaIPhone(const string& userID) {
+    // [BUG FIX] Validasi user ada di database
+    int userIdx = findUserIndexByID(userID);
+    if (userIdx == -1) {
+        cout << "Error: User ID " << userID << " tidak ditemukan!" << endl;
+        pressEnter();
+        return;
+    }
+
+    // [BUG FIX] Cek kapasitas rental array sebelum insert
+    if (jumlahRental >= MAX_RENTALS) {
+        cout << "Error: Kapasitas penyewaan sudah penuh (max " << MAX_RENTALS << ")!" << endl;
+        pressEnter();
+        return;
+    }
+
     int availIdx[MAX_IPHONES];
     int availCount = 0;
     for (int i = 0; i < jumlahIPhone; i++) {
@@ -268,6 +283,11 @@ void returnIPhone() {
     // Hitung denda overdue
     auto parseDate = [](const string& date) {
         tm t{};
+        // [BUG FIX] Validasi panjang string sebelum substr
+        if (date.length() < 10) {
+            cerr << "Warning: Format tanggal invalid: " << date << endl;
+            return t;
+        }
         t.tm_year = stringToInt(date.substr(0, 4)) - 1900;
         t.tm_mon = stringToInt(date.substr(5, 2)) - 1;
         t.tm_mday = stringToInt(date.substr(8, 2));
@@ -290,8 +310,14 @@ void returnIPhone() {
 
         int phoneIdx2 = findiPhoneByID(daftarRental[idx].iphoneID);
         float dailyRate = phoneIdx2 != -1 ? daftarIPhone[phoneIdx2].rentPrice : 0;
+        // [BUG FIX] Jika dailyRate 0 (iPhone tidak ada), gunakan total price / duration
+        if (dailyRate <= 0 && daftarRental[idx].duration > 0) {
+            dailyRate = daftarRental[idx].totalPrice / daftarRental[idx].duration;
+        }
         daftarRental[idx].lateFee = dailyRate * 0.1f * lateDays; // denda 10% per hari
-        cout << "Peringatan: Terlambat " << lateDays << " hari! Denda: Rp" << toString(daftarRental[idx].lateFee) << endl;
+        if (daftarRental[idx].lateFee > 0) {
+            cout << "Peringatan: Terlambat " << lateDays << " hari! Denda: Rp" << toString(daftarRental[idx].lateFee) << endl;
+        }
     }
 
     int phoneIdx = findiPhoneByID(daftarRental[idx].iphoneID);

@@ -183,6 +183,9 @@ void buatReservasi(const string& userID) {
 void processReservations(const string& iphoneID) {
     cout << "Memeriksa antrean reservasi untuk iPhone ini..." << endl;
 
+    // [BUG FIX] Sort reservasi berdasarkan prioritas VIP terlebih dahulu
+    sortReservationsByPriority();
+
     bool found = false;
     for (int i = 0; i < jumlahReservasi; i++) {
         // [MODUL 1] Operator Logika: &&

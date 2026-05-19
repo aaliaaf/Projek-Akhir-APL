@@ -223,6 +223,7 @@ void loadIPhones() {
             daftarIPhone[jumlahIPhone].rentPrice = stringToFloat(fields[3]);
             daftarIPhone[jumlahIPhone].status = fields[4];
             daftarIPhone[jumlahIPhone].totalRented = stringToInt(fields[5]);
+            // [BUG FIX] Akses dengan boundary check menggunakan ternary
             daftarIPhone[jumlahIPhone].color = fields.size() > 6 ? fields[6] : "";
             daftarIPhone[jumlahIPhone].year = fields.size() > 7 ? stringToInt(fields[7]) : 0;
             daftarIPhone[jumlahIPhone].condition = fields.size() > 8 ? fields[8] : "";
@@ -599,8 +600,9 @@ void mergeIPhone(int left, int mid, int right) {
     int n1 = mid - left + 1;
     int n2 = right - mid;
 
-    // [MODUL 2] Array 1D: array sementara untuk merge
-    iPhone L[n1], R[n2];
+    // [MODUL 2] Array 1D: array sementara untuk merge (gunakan vector, bukan VLA)
+    vector<iPhone> L(n1);
+    vector<iPhone> R(n2);
 
     for (int i = 0; i < n1; i++) L[i] = daftarIPhone[left + i];
     for (int j = 0; j < n2; j++) R[j] = daftarIPhone[mid + 1 + j];
