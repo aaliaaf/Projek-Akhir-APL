@@ -25,7 +25,7 @@ int jumlahRental = 0;
 
 void loadRentals() {
     try {
-        ifstream file("data/rentals.csv");
+        ifstream file(resolveProjectPath("data/rentals.csv"));
         if (!file.is_open()) {
             return;
         }
@@ -57,7 +57,10 @@ void loadRentals() {
 }
 
 void saveRentals() {
-    ofstream file("data/rentals.csv");
+    filesystem::path rentalsPath = resolveProjectPath("data/rentals.csv");
+    filesystem::create_directories(rentalsPath.parent_path());
+
+    ofstream file(rentalsPath);
     if (!file.is_open()) {
         cout << "Error: Tidak bisa membuka file rentals.csv!" << endl;
         return;
@@ -167,8 +170,10 @@ void sewaIPhone(const string& userID) {
     logAudit("SEWA_IPHONE", "ID: " + rentalID + ", iPhone: " + daftarIPhone[idx].name);
 
     // Invoice markdown
-    system("mkdir -p invoices 2>/dev/null");
-    ofstream inv("invoices/" + rentalID + ".md");
+    filesystem::path invoicesDir = resolveProjectPath("invoices");
+    filesystem::create_directories(invoicesDir);
+
+    ofstream inv(invoicesDir / (rentalID + ".md"));
     if (inv.is_open()) {
         inv << "# INVOICE PENYEWAAN IPHONE" << endl;
         inv << endl;
@@ -191,7 +196,7 @@ void sewaIPhone(const string& userID) {
         inv << "---" << endl;
         inv << "*Terima kasih telah menggunakan layanan kami.*" << endl;
         inv.close();
-        cout << "Invoice tersimpan: invoices/" << rentalID << ".md" << endl;
+        cout << "Invoice tersimpan: " << (invoicesDir / (rentalID + ".md")).string() << endl;
     }
 
     cout << "Penyewaan berhasil! ID Rental: " << rentalID << endl;

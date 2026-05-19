@@ -19,7 +19,7 @@ int jumlahReservasi = 0;
 
 void loadReservations() {
     try {
-        ifstream file("data/reservations.csv");
+        ifstream file(resolveProjectPath("data/reservations.csv"));
         if (!file.is_open()) {
             return;
         }
@@ -49,7 +49,10 @@ void loadReservations() {
 }
 
 void saveReservations() {
-    ofstream file("data/reservations.csv");
+    filesystem::path reservationsPath = resolveProjectPath("data/reservations.csv");
+    filesystem::create_directories(reservationsPath.parent_path());
+
+    ofstream file(reservationsPath);
     if (!file.is_open()) {
         cout << "Error: Tidak bisa membuka file reservations.csv!" << endl;
         return;

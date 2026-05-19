@@ -28,7 +28,7 @@ int jumlahUser = 0;
 // [MODUL 8] Exception Handling: try-catch
 void loadUsers() {
     try {
-        ifstream file("data/users.csv");
+        ifstream file(resolveProjectPath("data/users.csv"));
         if (!file.is_open()) {
             return;
         }
@@ -63,7 +63,10 @@ void loadUsers() {
 }
 
 void saveUsers() {
-    ofstream file("data/users.csv");
+    filesystem::path usersPath = resolveProjectPath("data/users.csv");
+    filesystem::create_directories(usersPath.parent_path());
+
+    ofstream file(usersPath);
     if (!file.is_open()) {
         cout << "Error: Tidak bisa membuka file users.csv!" << endl;
         return;

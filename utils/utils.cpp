@@ -1,10 +1,39 @@
 #include "utils.h"
 #include <iostream> // [MODUL 1] I/O: cout, cin
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <iomanip>
 #include <limits>
 using namespace std;
+
+namespace fs = std::filesystem;
+
+static fs::path findProjectRoot() {
+    static const fs::path cachedRoot = []() {
+        fs::path current = fs::current_path();
+
+        while (true) {
+            if (fs::exists(current / "data") && fs::is_directory(current / "data")) {
+                return current;
+            }
+
+            if (!current.has_parent_path() || current == current.parent_path()) {
+                break;
+            }
+
+            current = current.parent_path();
+        }
+
+        return fs::current_path();
+    }();
+
+    return cachedRoot;
+}
+
+filesystem::path resolveProjectPath(const string& relativePath) {
+    return findProjectRoot() / fs::path(relativePath);
+}
 
 // [MODUL 3] Prosedur: void, tanpa return value
 void clearScreen() {
@@ -128,7 +157,10 @@ bool isCancelInput(const string& input) {
 }
 
 void logAudit(const string& action, const string& detail) {
-    ofstream file("data/audit.log", ios::app);
+    fs::path auditPath = resolveProjectPath("data/audit.log");
+    fs::create_directories(auditPath.parent_path());
+
+    ofstream file(auditPath, ios::app);
     if (!file.is_open()) return;
     file << "[" << getCurrentDateTime() << "] " << action << ": " << detail << endl;
     file.close();

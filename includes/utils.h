@@ -1,6 +1,7 @@
 #ifndef UTILS_H // [MODUL 8] Include Guards
 #define UTILS_H
 
+#include <filesystem>
 #include <string> // [MODUL 1] Tipe Data Kolektif (string)
 #include <ctime>
 #include <iostream> // [MODUL 8] Library Internal
@@ -46,6 +47,8 @@ void swapByPointer(int* a, int* b);
 
 // [MODUL 3] Default Parameter
 void displaySeparator(char ch = '=', int length = 40);
+
+filesystem::path resolveProjectPath(const string& relativePath);
 
 string getCurrentDateTime();
 

@@ -186,7 +186,7 @@ float hitungHarga(int modelIdx, const string& storage, const string& kondisi) {
 // [MODUL 8] Exception Handling: try-catch
 void loadIPhones() {
     try { // [MODUL 8] try block
-        ifstream file("data/iphones.csv");
+        ifstream file(resolveProjectPath("data/iphones.csv"));
         if (!file.is_open()) {
             return;
         }
@@ -246,7 +246,10 @@ void loadIPhones() {
 }
 
 void saveIPhones() {
-    ofstream file("data/iphones.csv");
+    filesystem::path iphonesPath = resolveProjectPath("data/iphones.csv");
+    filesystem::create_directories(iphonesPath.parent_path());
+
+    ofstream file(iphonesPath);
     if (!file.is_open()) {
         cout << "Error: Tidak bisa membuka file iphones.csv!" << endl;
         return;
