@@ -1,5 +1,4 @@
 reservation_id,user_id,iphone_id,reservation_date,priority,status
 RSV001,USR001,IP002,2026-05-18,VIP,waiting
-RSV004,USR001,IP006,2026-05-19,VIP,waiting
 RSV002,USR004,IP003,2026-05-17,Regular,waiting
 RSV003,USR002,IP002,2026-05-16,Regular,waiting

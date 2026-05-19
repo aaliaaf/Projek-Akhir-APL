@@ -163,6 +163,131 @@ void registerUser() {
     pressEnter();
 }
 
+void tambahUser() {
+    if (jumlahUser >= MAX_USERS) {
+        cout << "Maaf, kapasitas user penuh!" << endl;
+        pressEnter();
+        return;
+    }
+
+    string name, phone, username, password, role;
+
+    cout << "=================================" << endl;
+    cout << "        TAMBAH USER              " << endl;
+    cout << "=================================" << endl;
+
+    cout << "Nama: ";
+    getline(cin, name);
+
+    while (true) {
+        cout << "Nomor HP: ";
+        getline(cin, phone);
+        if (isValidPhoneNumber(phone)) break;
+        cout << "Nomor HP harus 10-14 digit angka!" << endl;
+    }
+
+    while (true) {
+        cout << "Username: ";
+        getline(cin, username);
+        if (findUserByUsername(username) == -1) break;
+        cout << "Username sudah digunakan!" << endl;
+    }
+
+    cout << "Password: ";
+    getline(cin, password);
+
+    while (true) {
+        cout << "Role (admin/customer): ";
+        getline(cin, role);
+        if (role == "admin" || role == "customer") break;
+        cout << "Role harus 'admin' atau 'customer'!" << endl;
+    }
+
+    int newID = jumlahUser + 1;
+    string id = formatID("USR", newID);
+
+    daftarUser[jumlahUser].id = id;
+    daftarUser[jumlahUser].name = name;
+    daftarUser[jumlahUser].phone = phone;
+    daftarUser[jumlahUser].username = username;
+    daftarUser[jumlahUser].password = password;
+    daftarUser[jumlahUser].role = role;
+    daftarUser[jumlahUser].isVIP = false;
+    jumlahUser++;
+
+    saveUsers();
+    cout << "User berhasil ditambahkan! ID: " << id << endl;
+    pressEnter();
+}
+
+void editUser() {
+    if (jumlahUser == 0) {
+        cout << "Belum ada user terdaftar." << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "=================================" << endl;
+    cout << "      PILIH USER (EDIT)          " << endl;
+    cout << "=================================" << endl;
+    for (int i = 0; i < jumlahUser; i++) {
+        cout << (i + 1) << ". " << daftarUser[i].name
+             << " (" << daftarUser[i].role << ")" << endl;
+    }
+
+    int pilihan;
+    string input;
+    while (true) {
+        cout << "Pilih user (1-" << jumlahUser << "): ";
+        getline(cin, input);
+        stringstream ss(input);
+        if (ss >> pilihan && ss.eof() && pilihan >= 1 && pilihan <= jumlahUser) break;
+        cout << "Masukkan angka 1 - " << jumlahUser << "!" << endl;
+    }
+
+    int idx = pilihan - 1;
+    string temp;
+
+    cout << "=================================" << endl;
+    cout << "   EDIT USER (" << daftarUser[idx].name << ")" << endl;
+    cout << "=================================" << endl;
+    cout << "Kosongkan jika tidak ingin diubah." << endl;
+
+    cout << "Nama (" << daftarUser[idx].name << "): ";
+    getline(cin, temp);
+    if (!temp.empty()) daftarUser[idx].name = temp;
+
+    while (true) {
+        cout << "No. HP (" << daftarUser[idx].phone << "): ";
+        getline(cin, temp);
+        if (temp.empty()) break;
+        if (isValidPhoneNumber(temp)) {
+            daftarUser[idx].phone = temp;
+            break;
+        }
+        cout << "Nomor HP harus 10-14 digit angka!" << endl;
+    }
+
+    while (true) {
+        cout << "Username (" << daftarUser[idx].username << "): ";
+        getline(cin, temp);
+        if (temp.empty()) break;
+        if (findUserByUsername(temp) == -1 || temp == daftarUser[idx].username) {
+            daftarUser[idx].username = temp;
+            break;
+        }
+        cout << "Username sudah digunakan!" << endl;
+    }
+
+    cout << "Password (kosongkan jika tidak diubah): ";
+    getline(cin, temp);
+    if (!temp.empty()) daftarUser[idx].password = temp;
+
+    saveUsers();
+    cout << "User berhasil diedit!" << endl;
+    pressEnter();
+}
+
 void displayAllUsers() {
     if (jumlahUser == 0) {
         cout << "Belum ada user terdaftar." << endl;

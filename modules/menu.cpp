@@ -195,28 +195,36 @@ void adminManageUsers() {
         cout << "=================================" << endl;
         cout << "     MANAJEMEN USER              " << endl;
         cout << "=================================" << endl;
-        cout << "1. Lihat Semua User" << endl;
-        cout << "2. Hapus User" << endl;
-        cout << "3. Atur Status VIP" << endl;
-        cout << "4. Kembali" << endl;
+        cout << "1. Tambah User" << endl;
+        cout << "2. Lihat Semua User" << endl;
+        cout << "3. Edit User" << endl;
+        cout << "4. Hapus User" << endl;
+        cout << "5. Atur Status VIP" << endl;
+        cout << "6. Kembali" << endl;
         cout << "=================================" << endl;
 
-        pilihan = getMenuChoice(1, 4);
+        pilihan = getMenuChoice(1, 6);
 
         switch (pilihan) {
             case 1:
-                displayAllUsers();
+                tambahUser();
                 break;
             case 2:
-                deleteUser();
+                displayAllUsers();
                 break;
             case 3:
-                setVIPStatus();
+                editUser();
                 break;
             case 4:
+                deleteUser();
+                break;
+            case 5:
+                setVIPStatus();
+                break;
+            case 6:
                 break;
         }
-    } while (pilihan != 4);
+    } while (pilihan != 6);
 }
 
 void adminManageRentals() {

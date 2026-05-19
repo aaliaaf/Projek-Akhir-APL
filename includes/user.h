@@ -25,6 +25,8 @@ void loadUsers();
 void saveUsers();
 int findUserByUsername(const string& username);
 int findUserIndexByID(const string& id);
+void tambahUser();
+void editUser();
 void displayAllUsers();
 void deleteUser();
 void setVIPStatus();

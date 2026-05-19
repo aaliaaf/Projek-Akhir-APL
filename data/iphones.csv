@@ -1,5 +1,5 @@
 id,name,storage,rent_price,status,total_rented
-IP001,iPhone 16 Pro Max,6,3,rented,3
+IP001,iPhone 16 Pro Max,512GB,300000,rented,2
 IP002,iPhone 16 Pro,256GB,275000,rented,1
 IP003,iPhone 15 Pro Max,256GB,250000,available,3
 IP004,iPhone 15 Pro,128GB,200000,available,1
