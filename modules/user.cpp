@@ -37,9 +37,23 @@ void loadUsers() {
         getline(file, line);
 
         jumlahUser = 0;
-        while (getline(file, line) && jumlahUser < MAX_USERS) {
+        int lineNumber = 1;
+        while (getline(file, line)) {
+            lineNumber++;
+            if (jumlahUser >= MAX_USERS) {
+                cerr << "Warning: data user melebihi kapasitas maksimum, baris " << lineNumber << " diabaikan." << endl;
+                continue;
+            }
             vector<string> fields = splitCSVRow(line);
-            if (fields.size() < 7) continue;
+            if (fields.size() < 7) {
+                cerr << "Warning: format user tidak valid pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
+
+            if (fields[0].empty() || fields[1].empty() || fields[2].empty() || fields[3].empty() || fields[4].empty() || fields[5].empty()) {
+                cerr << "Warning: data user tidak lengkap pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
 
             // [MODUL 2] CRUD Array: Create
             daftarUser[jumlahUser].id = fields[0];

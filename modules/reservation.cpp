@@ -28,9 +28,23 @@ void loadReservations() {
         getline(file, line);
 
         jumlahReservasi = 0;
-        while (getline(file, line) && jumlahReservasi < MAX_RESERVATIONS) {
+        int lineNumber = 1;
+        while (getline(file, line)) {
+            lineNumber++;
+            if (jumlahReservasi >= MAX_RESERVATIONS) {
+                cerr << "Warning: data reservasi melebihi kapasitas maksimum, baris " << lineNumber << " diabaikan." << endl;
+                continue;
+            }
             vector<string> fields = splitCSVRow(line);
-            if (fields.size() < 6) continue;
+            if (fields.size() < 6) {
+                cerr << "Warning: format reservasi tidak valid pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
+
+            if (fields[0].empty() || fields[1].empty() || fields[2].empty() || fields[3].empty() || fields[4].empty() || fields[5].empty()) {
+                cerr << "Warning: data reservasi tidak lengkap pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
 
             daftarReservasi[jumlahReservasi].reservationID = fields[0];
             daftarReservasi[jumlahReservasi].userID = fields[1];
@@ -158,7 +172,6 @@ void buatReservasi(const string& userID) {
     daftarReservasi[jumlahReservasi].status = "waiting";
     jumlahReservasi++;
 
-    sortReservationsByPriority(); // [MODUL 5] Bubble Sort
     saveReservations();
 
     cout << "Reservasi berhasil! ID Reservasi: " << resID << endl;

@@ -34,9 +34,23 @@ void loadRentals() {
         getline(file, line);
 
         jumlahRental = 0;
-        while (getline(file, line) && jumlahRental < MAX_RENTALS) {
+        int lineNumber = 1;
+        while (getline(file, line)) {
+            lineNumber++;
+            if (jumlahRental >= MAX_RENTALS) {
+                cerr << "Warning: data rental melebihi kapasitas maksimum, baris " << lineNumber << " diabaikan." << endl;
+                continue;
+            }
             vector<string> fields = splitCSVRow(line);
-            if (fields.size() < 7) continue;
+            if (fields.size() < 7) {
+                cerr << "Warning: format rental tidak valid pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
+
+            if (fields[0].empty() || fields[1].empty() || fields[2].empty() || fields[3].empty() || fields[4].empty() || fields[5].empty() || fields[6].empty()) {
+                cerr << "Warning: data rental tidak lengkap pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
 
             daftarRental[jumlahRental].rentalID = fields[0];
             daftarRental[jumlahRental].userID = fields[1];

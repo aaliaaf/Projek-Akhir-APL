@@ -196,13 +196,23 @@ void loadIPhones() {
 
         jumlahIPhone = 0;
         // [MODUL 1] Perulangan while
-        while (getline(file, line) && jumlahIPhone < MAX_IPHONES) {
+        int lineNumber = 1;
+        while (getline(file, line)) {
+            lineNumber++;
+            if (jumlahIPhone >= MAX_IPHONES) {
+                cerr << "Warning: data iPhone melebihi kapasitas maksimum, baris " << lineNumber << " diabaikan." << endl;
+                continue;
+            }
             // [MODUL 2] Vector: tipe data kolektif
             vector<string> fields = splitCSVRow(line);
-            if (fields.size() < 6) continue;
+            if (fields.size() < 6) {
+                cerr << "Warning: format iPhone tidak valid pada baris " << lineNumber << ", baris diabaikan." << endl;
+                continue;
+            }
 
             // [MODUL 8] Contoh throw logic_error: validasi data
             if (fields[1].empty()) {
+                cerr << "Warning: nama iPhone kosong pada baris " << lineNumber << ", baris diabaikan." << endl;
                 continue;
             }
 

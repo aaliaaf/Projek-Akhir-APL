@@ -158,7 +158,7 @@ string getValidDateSplit() {
     }
     while (true) {
         int maxDay = daysInMonth(tahun, bulan);
-        hari = getValidInt("Tanggal (1-31): ");
+        hari = getValidInt("Tanggal (sesuai bulan): ");
         if (hari >= 1 && hari <= maxDay) break;
         cout << "Tanggal harus 1-" << maxDay << "!" << endl;
     }
