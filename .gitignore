@@ -23,3 +23,5 @@ bin/
 # Temporary files
 *.tmp
 .cache/
+
+modul/
