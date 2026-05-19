@@ -1,7 +1,8 @@
-id,name,storage,rent_price,status,total_rented
-IP001,iPhone 16 Pro Max,512GB,300000,rented,2
-IP002,iPhone 16 Pro,256GB,275000,rented,1
-IP003,iPhone 15 Pro Max,256GB,250000,available,3
-IP004,iPhone 15 Pro,128GB,200000,available,1
-IP005,iPhone 14 Plus,128GB,175000,available,0
-IP006,iPhone SE 3,64GB,125000,available,0
+id,name,storage,rent_price,status,total_rented,color,year,condition
+IP005,iPhone 14 Plus,128GB,175000,available,0,Purple,2022,Baik
+IP004,iPhone 15 Pro,128GB,200000,available,1,Natural Titanium,2023,Baik
+IP003,iPhone 15 Pro Max,256GB,250000,available,3,Blue Titanium,2023,Baik
+IP002,iPhone 16 Pro,256GB,275000,rented,1,Desert Titanium,2024,Baik
+IP001,iPhone 16 Pro Max,512GB,300000,rented,2,Natural Titanium,2024,Baik
+IP006,iPhone SE 3,64GB,125000,available,1,Red,2022,Cukup
+IP007,iPhone 16 Pro Max,1TB,175000,available,0,Black Titanium,2024,Baru

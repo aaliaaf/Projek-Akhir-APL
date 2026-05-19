@@ -1,10 +1,11 @@
-#ifndef MENU_H
+#ifndef MENU_H // [MODUL 8] Include Guards
 #define MENU_H
 
 #include <string>
 using namespace std;
 
 void showMainMenu();
+void showGuestMenu();
 void showCustomerMenu(const string& userID);
 void showAdminMenu();
 

@@ -1,3 +1,6 @@
+// [MODUL 5] Bubble Sort - O(n²) untuk prioritas reservasi
+// [MODUL 8] Exception Handling
+
 #include "reservation.h"
 #include "iphone.h"
 #include "user.h"
@@ -7,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <tabulate/table.hpp>
+#include <tabulate/table.hpp> // [MODUL 8] Library External (tabulate)
 using namespace std;
 using namespace tabulate;
 
@@ -15,29 +18,34 @@ Reservation daftarReservasi[MAX_RESERVATIONS];
 int jumlahReservasi = 0;
 
 void loadReservations() {
-    ifstream file("data/reservations.csv");
-    if (!file.is_open()) {
-        return;
+    try {
+        ifstream file("data/reservations.csv");
+        if (!file.is_open()) {
+            return;
+        }
+
+        string line;
+        getline(file, line);
+
+        jumlahReservasi = 0;
+        while (getline(file, line) && jumlahReservasi < MAX_RESERVATIONS) {
+            vector<string> fields = splitCSVRow(line);
+            if (fields.size() < 6) continue;
+
+            daftarReservasi[jumlahReservasi].reservationID = fields[0];
+            daftarReservasi[jumlahReservasi].userID = fields[1];
+            daftarReservasi[jumlahReservasi].iphoneID = fields[2];
+            daftarReservasi[jumlahReservasi].reservationDate = fields[3];
+            daftarReservasi[jumlahReservasi].priority = fields[4];
+            daftarReservasi[jumlahReservasi].status = fields[5];
+            jumlahReservasi++;
+        }
+
+        file.close();
+    } catch (const exception& e) {
+        cerr << "Error loading reservations: " << e.what() << endl;
+        jumlahReservasi = 0;
     }
-
-    string line;
-    getline(file, line);
-
-    jumlahReservasi = 0;
-    while (getline(file, line) && jumlahReservasi < MAX_RESERVATIONS) {
-        vector<string> fields = splitCSVRow(line);
-        if (fields.size() < 6) continue;
-
-        daftarReservasi[jumlahReservasi].reservationID = fields[0];
-        daftarReservasi[jumlahReservasi].userID = fields[1];
-        daftarReservasi[jumlahReservasi].iphoneID = fields[2];
-        daftarReservasi[jumlahReservasi].reservationDate = fields[3];
-        daftarReservasi[jumlahReservasi].priority = fields[4];
-        daftarReservasi[jumlahReservasi].status = fields[5];
-        jumlahReservasi++;
-    }
-
-    file.close();
 }
 
 void saveReservations() {
@@ -61,13 +69,18 @@ void saveReservations() {
     file.close();
 }
 
+// [MODUL 5] Bubble Sort - O(n²)
+// [MODUL 5] Mengurutkan reservasi berdasarkan prioritas (VIP > Regular)
+// [MODUL 5] Descending: VIP didahulukan
 void sortReservationsByPriority() {
     for (int i = 0; i < jumlahReservasi - 1; i++) {
         for (int j = 0; j < jumlahReservasi - i - 1; j++) {
+            // [MODUL 1] Ternary Operator untuk konversi prioritas ke numerik
             int priorityA = (daftarReservasi[j].priority == "VIP") ? 1 : 0;
             int priorityB = (daftarReservasi[j + 1].priority == "VIP") ? 1 : 0;
 
             if (priorityA < priorityB) {
+                // [MODUL 5] Swap manual
                 Reservation temp = daftarReservasi[j];
                 daftarReservasi[j] = daftarReservasi[j + 1];
                 daftarReservasi[j + 1] = temp;
@@ -104,7 +117,7 @@ void buatReservasi(const string& userID) {
     for (int i = 0; i < jumlahIPhone; i++) {
         cout << (i + 1) << ". " << daftarIPhone[i].name << " ("
              << daftarIPhone[i].storage << ") - Rp"
-             << floatToString(daftarIPhone[i].rentPrice) << "/hari - "
+             << toString(daftarIPhone[i].rentPrice) << "/hari - "
              << (daftarIPhone[i].status == "available" ? "Tersedia" : "Disewa") << endl;
     }
 
@@ -120,10 +133,11 @@ void buatReservasi(const string& userID) {
 
     int idx = pilihan - 1;
 
+    // [MODUL 1] Percabangan if: cek status VIP
     int userIdx = findUserIndexByID(userID);
     string priority = "Regular";
-    if (userIdx != -1 && daftarUser[userIdx].isVIP) {
-        priority = "VIP";
+    if (userIdx != -1 && daftarUser[userIdx].isVIP) { // [MODUL 1] Operator Logika: &&
+        priority = "VIP"; // [MODUL 1] Operator Penugasan: =
     }
 
     int newID = jumlahReservasi + 1;
@@ -137,7 +151,7 @@ void buatReservasi(const string& userID) {
     daftarReservasi[jumlahReservasi].status = "waiting";
     jumlahReservasi++;
 
-    sortReservationsByPriority();
+    sortReservationsByPriority(); // [MODUL 5] Bubble Sort
     saveReservations();
 
     cout << "Reservasi berhasil! ID Reservasi: " << resID << endl;
@@ -151,6 +165,7 @@ void processReservations(const string& iphoneID) {
 
     bool found = false;
     for (int i = 0; i < jumlahReservasi; i++) {
+        // [MODUL 1] Operator Logika: &&
         if (daftarReservasi[i].iphoneID == iphoneID &&
             daftarReservasi[i].status == "waiting") {
             int userIdx = findUserIndexByID(daftarReservasi[i].userID);
@@ -169,6 +184,74 @@ void processReservations(const string& iphoneID) {
     if (!found) {
         cout << "Tidak ada antrean reservasi untuk iPhone ini." << endl;
     }
+}
+
+void cancelReservation() {
+    if (jumlahReservasi == 0) {
+        cout << "Belum ada reservasi." << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Masukkan ID Reservasi yang akan dibatalkan: ";
+    string id;
+    getline(cin, id);
+
+    int idx = findReservasiByID(id);
+    if (idx == -1) {
+        cout << "Reservasi dengan ID \"" << id << "\" tidak ditemukan!" << endl;
+        pressEnter();
+        return;
+    }
+
+    if (daftarReservasi[idx].status != "waiting") {
+        cout << "Reservasi sudah diproses, tidak bisa dibatalkan." << endl;
+        pressEnter();
+        return;
+    }
+
+    string deletedID = daftarReservasi[idx].reservationID;
+    string deletedUser = daftarReservasi[idx].userID;
+    for (int i = idx; i < jumlahReservasi - 1; i++) {
+        daftarReservasi[i] = daftarReservasi[i + 1];
+    }
+    jumlahReservasi--;
+
+    saveReservations();
+    logAudit("CANCEL_RESERVATION", "ID: " + deletedID + ", User: " + deletedUser);
+    cout << "Reservasi berhasil dibatalkan." << endl;
+    pressEnter();
+}
+
+void processReservationManually() {
+    if (jumlahReservasi == 0) {
+        cout << "Belum ada reservasi." << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Masukkan ID Reservasi yang akan diproses: ";
+    string id;
+    getline(cin, id);
+
+    int idx = findReservasiByID(id);
+    if (idx == -1) {
+        cout << "Reservasi dengan ID \"" << id << "\" tidak ditemukan!" << endl;
+        pressEnter();
+        return;
+    }
+
+    if (daftarReservasi[idx].status != "waiting") {
+        cout << "Reservasi sudah diproses." << endl;
+        pressEnter();
+        return;
+    }
+
+    daftarReservasi[idx].status = "processed";
+    saveReservations();
+    logAudit("PROCESS_RESERVATION", "ID: " + id);
+    cout << "Reservasi berhasil diproses." << endl;
+    pressEnter();
 }
 
 void displayAllReservations() {
@@ -191,7 +274,7 @@ void displayAllReservations() {
         string statusText = (daftarReservasi[i].status == "waiting") ? "Menunggu" : "Diproses";
 
         table.add_row({
-            intToString(i + 1),
+            toString(i + 1),
             userName,
             phoneName,
             daftarReservasi[i].reservationDate,
@@ -224,7 +307,7 @@ void displayUserReservations(const string& userID) {
             string statusText = (daftarReservasi[i].status == "waiting") ? "Menunggu" : "Diproses";
 
             table.add_row({
-                intToString(num),
+                toString(num),
                 phoneName,
                 daftarReservasi[i].reservationDate,
                 daftarReservasi[i].priority,
@@ -241,7 +324,6 @@ void displayUserReservations(const string& userID) {
         table.column(2).format().width(14);
         table.column(3).format().width(10);
         table.column(4).format().width(10);
-
         cout << table << endl;
     }
 

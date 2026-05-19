@@ -1,8 +1,8 @@
-#ifndef CSV_HELPER_H
+#ifndef CSV_HELPER_H // [MODUL 8] Include Guards
 #define CSV_HELPER_H
 
 #include <string>
-#include <vector>
+#include <vector> // [MODUL 8] Library Internal: <vector>
 using namespace std;
 
 vector<string> splitCSVRow(const string& row);

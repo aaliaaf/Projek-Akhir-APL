@@ -1,3 +1,9 @@
+// [MODUL 1] I/O: cout, cin, getline, Operator, Percabangan, Perulangan
+// [MODUL 2] Array, Struct, Array of Struct, CRUD Array
+// [MODUL 3] Prosedur, Fungsi, Pass by Reference, Variabel Global/Lokal
+// [MODUL 5] Insertion Sort
+// [MODUL 8] Exception Handling, Include Guards, Library
+
 #include "user.h"
 #include "menu.h"
 #include "csv_helper.h"
@@ -6,38 +12,54 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <tabulate/table.hpp>
+#include <cmath>    // [MODUL 8] Library Internal: <cmath> (sqrt)
+#include <algorithm> // [MODUL 8] Library Internal: <algorithm> (min)
+#include <tabulate/table.hpp> // [MODUL 8] Library External (tabulate)
 using namespace std;
 using namespace tabulate;
 
-User daftarUser[MAX_USERS];
+// [MODUL 3] Variabel Global: dapat diakses oleh semua fungsi dalam file ini
+User daftarUser[MAX_USERS]; // [MODUL 2] Array of Struct
 int jumlahUser = 0;
 
+// [MODUL 3] Shadowing: jika fungsi mendeklarasikan variabel lokal dengan nama yang sama
+// Contoh (tidak dijalankan): int jumlahUser = 5; // akan menimpa (shadow) variabel global jumlahUser
+
+// [MODUL 8] Exception Handling: try-catch
 void loadUsers() {
-    ifstream file("data/users.csv");
-    if (!file.is_open()) {
-        return;
+    try {
+        ifstream file("data/users.csv");
+        if (!file.is_open()) {
+            return;
+        }
+
+        string line;
+        getline(file, line);
+
+        jumlahUser = 0;
+        while (getline(file, line) && jumlahUser < MAX_USERS) {
+            vector<string> fields = splitCSVRow(line);
+            if (fields.size() < 7) continue;
+
+            // [MODUL 2] CRUD Array: Create
+            daftarUser[jumlahUser].id = fields[0];
+            daftarUser[jumlahUser].name = fields[1];
+            daftarUser[jumlahUser].phone = fields[2];
+            daftarUser[jumlahUser].username = fields[3];
+            daftarUser[jumlahUser].password = fields[4];
+            daftarUser[jumlahUser].role = fields[5];
+            daftarUser[jumlahUser].isVIP = parseBoolean(fields[6]);
+            daftarUser[jumlahUser].alamat.jalan = fields.size() > 7 ? fields[7] : "";
+            daftarUser[jumlahUser].alamat.kota = fields.size() > 8 ? fields[8] : "";
+            daftarUser[jumlahUser].alamat.kodePos = fields.size() > 9 ? fields[9] : "";
+            jumlahUser++;
+        }
+
+        file.close();
+    } catch (const exception& e) {
+        cerr << "Error loading users: " << e.what() << endl;
+        jumlahUser = 0;
     }
-
-    string line;
-    getline(file, line);
-
-    jumlahUser = 0;
-    while (getline(file, line) && jumlahUser < MAX_USERS) {
-        vector<string> fields = splitCSVRow(line);
-        if (fields.size() < 7) continue;
-
-        daftarUser[jumlahUser].id = fields[0];
-        daftarUser[jumlahUser].name = fields[1];
-        daftarUser[jumlahUser].phone = fields[2];
-        daftarUser[jumlahUser].username = fields[3];
-        daftarUser[jumlahUser].password = fields[4];
-        daftarUser[jumlahUser].role = fields[5];
-        daftarUser[jumlahUser].isVIP = parseBoolean(fields[6]);
-        jumlahUser++;
-    }
-
-    file.close();
 }
 
 void saveUsers() {
@@ -47,7 +69,7 @@ void saveUsers() {
         return;
     }
 
-    file << "id,name,phone,username,password,role,is_vip" << endl;
+    file << "id,name,phone,username,password,role,is_vip,jalan,kota,kode_pos" << endl;
 
     for (int i = 0; i < jumlahUser; i++) {
         file << daftarUser[i].id << ","
@@ -56,12 +78,18 @@ void saveUsers() {
              << daftarUser[i].username << ","
              << daftarUser[i].password << ","
              << daftarUser[i].role << ","
-             << (daftarUser[i].isVIP ? "true" : "false") << endl;
+             << (daftarUser[i].isVIP ? "true" : "false") << ","
+             << daftarUser[i].alamat.jalan << ","
+             << daftarUser[i].alamat.kota << ","
+             << daftarUser[i].alamat.kodePos << endl;
     }
 
     file.close();
 }
 
+// [MODUL 3] Fungsi dengan return value (int)
+// [MODUL 3] Pass by Value: username dikirim sebagai salinan
+// [MODUL 1] Perulangan for: sequential search
 int findUserByUsername(const string& username) {
     for (int i = 0; i < jumlahUser; i++) {
         if (daftarUser[i].username == username) {
@@ -80,6 +108,7 @@ int findUserIndexByID(const string& id) {
     return -1;
 }
 
+// [MODUL 3] Prosedur: void, tidak mengembalikan nilai
 void login() {
     string username, password;
 
@@ -91,8 +120,9 @@ void login() {
     cout << "Masukkan password: ";
     getline(cin, password);
 
+    // [MODUL 1] Percabangan if-else
     int idx = findUserByUsername(username);
-    if (idx == -1) {
+    if (idx == -1) { // [MODUL 1] Operator Perbandingan: ==
         cout << "Username tidak ditemukan!" << endl;
         pressEnter();
         return;
@@ -106,6 +136,7 @@ void login() {
 
     cout << "Selamat datang, " << daftarUser[idx].name << "!" << endl;
 
+    // [MODUL 1] Percabangan if-else
     if (daftarUser[idx].role == "admin") {
         showAdminMenu();
     } else {
@@ -129,6 +160,7 @@ void registerUser() {
     cout << "Nama: ";
     getline(cin, name);
 
+    // [MODUL 1] Perulangan while untuk validasi input
     while (true) {
         cout << "Nomor HP: ";
         getline(cin, phone);
@@ -146,9 +178,18 @@ void registerUser() {
     cout << "Password: ";
     getline(cin, password);
 
+    string jalan, kota, kodePos;
+    cout << "Alamat - Jalan: ";
+    getline(cin, jalan);
+    cout << "Alamat - Kota: ";
+    getline(cin, kota);
+    cout << "Alamat - Kode Pos: ";
+    getline(cin, kodePos);
+
     int newID = jumlahUser + 1;
     string id = formatID("USR", newID);
 
+    // [MODUL 2] Inisialisasi field struct dengan operator .
     daftarUser[jumlahUser].id = id;
     daftarUser[jumlahUser].name = name;
     daftarUser[jumlahUser].phone = phone;
@@ -156,9 +197,13 @@ void registerUser() {
     daftarUser[jumlahUser].password = password;
     daftarUser[jumlahUser].role = "customer";
     daftarUser[jumlahUser].isVIP = false;
+    daftarUser[jumlahUser].alamat.jalan = jalan;
+    daftarUser[jumlahUser].alamat.kota = kota;
+    daftarUser[jumlahUser].alamat.kodePos = kodePos;
     jumlahUser++;
 
     saveUsers();
+    logAudit("REGISTER_USER", "ID: " + id + ", Username: " + username);
     cout << "Registrasi berhasil! ID Anda: " << id << endl;
     pressEnter();
 }
@@ -196,12 +241,21 @@ void tambahUser() {
     cout << "Password: ";
     getline(cin, password);
 
+    // [MODUL 1] while loop + if untuk validasi role
     while (true) {
         cout << "Role (admin/customer): ";
         getline(cin, role);
-        if (role == "admin" || role == "customer") break;
+        if (role == "admin" || role == "customer") break; // [MODUL 1] Operator Logika: ||
         cout << "Role harus 'admin' atau 'customer'!" << endl;
     }
+
+    string jalan, kota, kodePos;
+    cout << "Alamat - Jalan: ";
+    getline(cin, jalan);
+    cout << "Alamat - Kota: ";
+    getline(cin, kota);
+    cout << "Alamat - Kode Pos: ";
+    getline(cin, kodePos);
 
     int newID = jumlahUser + 1;
     string id = formatID("USR", newID);
@@ -213,9 +267,13 @@ void tambahUser() {
     daftarUser[jumlahUser].password = password;
     daftarUser[jumlahUser].role = role;
     daftarUser[jumlahUser].isVIP = false;
+    daftarUser[jumlahUser].alamat.jalan = jalan;
+    daftarUser[jumlahUser].alamat.kota = kota;
+    daftarUser[jumlahUser].alamat.kodePos = kodePos;
     jumlahUser++;
 
     saveUsers();
+    logAudit("TAMBAH_USER", "ID: " + id + ", Username: " + username);
     cout << "User berhasil ditambahkan! ID: " << id << endl;
     pressEnter();
 }
@@ -255,7 +313,7 @@ void editUser() {
 
     cout << "Nama (" << daftarUser[idx].name << "): ";
     getline(cin, temp);
-    if (!temp.empty()) daftarUser[idx].name = temp;
+    if (!temp.empty()) daftarUser[idx].name = temp; // [MODUL 2] CRUD: Update field
 
     while (true) {
         cout << "No. HP (" << daftarUser[idx].phone << "): ";
@@ -283,8 +341,222 @@ void editUser() {
     getline(cin, temp);
     if (!temp.empty()) daftarUser[idx].password = temp;
 
+    cout << "Alamat - Jalan (" << daftarUser[idx].alamat.jalan << "): ";
+    getline(cin, temp);
+    if (!temp.empty()) daftarUser[idx].alamat.jalan = temp;
+
+    cout << "Alamat - Kota (" << daftarUser[idx].alamat.kota << "): ";
+    getline(cin, temp);
+    if (!temp.empty()) daftarUser[idx].alamat.kota = temp;
+
+    cout << "Alamat - Kode Pos (" << daftarUser[idx].alamat.kodePos << "): ";
+    getline(cin, temp);
+    if (!temp.empty()) daftarUser[idx].alamat.kodePos = temp;
+
     saveUsers();
+    logAudit("EDIT_USER", "ID: " + daftarUser[idx].id);
     cout << "User berhasil diedit!" << endl;
+    pressEnter();
+}
+
+// [MODUL 5] Insertion Sort - O(n²)
+// [MODUL 5] Ascending (A-Z)
+void sortUsersByName() {
+    for (int i = 1; i < jumlahUser; i++) {
+        User key = daftarUser[i];
+        int j = i - 1;
+        while (j >= 0 && daftarUser[j].name > key.name) {
+            daftarUser[j + 1] = daftarUser[j];
+            j--;
+        }
+        daftarUser[j + 1] = key;
+    }
+}
+
+// [MODUL 5] Quick Sort untuk User (divide & conquer)
+int partitionUser(int low, int high) {
+    string pivot = daftarUser[high].alamat.kota;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (daftarUser[j].alamat.kota < pivot) {
+            i++;
+            User temp = daftarUser[i];
+            daftarUser[i] = daftarUser[j];
+            daftarUser[j] = temp;
+        }
+    }
+    User temp = daftarUser[i + 1];
+    daftarUser[i + 1] = daftarUser[high];
+    daftarUser[high] = temp;
+    return i + 1;
+}
+
+void quickSortUser(int low, int high) {
+    if (low < high) {
+        int pi = partitionUser(low, high);
+        quickSortUser(low, pi - 1);
+        quickSortUser(pi + 1, high);
+    }
+}
+
+// [MODUL 6] Linear Search User (substring case-insensitive)
+void searchUserLinear() {
+    if (jumlahUser == 0) {
+        cout << "Belum ada user terdaftar." << endl;
+        pressEnter();
+        return;
+    }
+    cout << "Masukkan nama user yang dicari: ";
+    string keyword;
+    getline(cin, keyword);
+
+    Table table;
+    table.add_row({"No", "Nama", "No. HP", "Kota", "Role", "VIP"});
+
+    int count = 0;
+    for (int i = 0; i < jumlahUser; i++) {
+        string lowerName = "";
+        string lowerKeyword = "";
+        for (char c : daftarUser[i].name) lowerName += tolower(c);
+        for (char c : keyword) lowerKeyword += tolower(c);
+        if (lowerName.find(lowerKeyword) != string::npos) {
+            count++;
+            table.add_row({
+                toString(count),
+                daftarUser[i].name,
+                daftarUser[i].phone,
+                daftarUser[i].alamat.kota,
+                daftarUser[i].role,
+                daftarUser[i].isVIP ? "Ya" : "Tidak"
+            });
+        }
+    }
+
+    if (count == 0) {
+        cout << "Tidak ada user dengan nama mengandung \"" << keyword << "\"" << endl;
+    } else {
+        table.column(0).format().width(5);
+        table.column(1).format().width(18);
+        table.column(2).format().width(14);
+        table.column(3).format().width(12);
+        table.column(4).format().width(8);
+        table.column(5).format().width(6);
+        cout << table << endl;
+    }
+    pressEnter();
+}
+
+// [MODUL 6] Binary Search User (exact match, requires sorted data)
+void searchUserBinary() {
+    if (jumlahUser == 0) {
+        cout << "Belum ada user terdaftar." << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Masukkan nama user yang dicari (tepat): ";
+    string target;
+    getline(cin, target);
+
+    sortUsersByName();
+
+    int left = 0, right = jumlahUser - 1;
+    int foundIdx = -1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (daftarUser[mid].name == target) {
+            foundIdx = mid;
+            break;
+        }
+        if (daftarUser[mid].name < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    if (foundIdx == -1) {
+        cout << "Tidak ada user dengan nama \"" << target << "\"" << endl;
+    } else {
+        Table table;
+        table.add_row({"No", "Nama", "No. HP", "Kota", "Role", "VIP"});
+        table.add_row({
+            "1",
+            daftarUser[foundIdx].name,
+            daftarUser[foundIdx].phone,
+            daftarUser[foundIdx].alamat.kota,
+            daftarUser[foundIdx].role,
+            daftarUser[foundIdx].isVIP ? "Ya" : "Tidak"
+        });
+        table.column(0).format().width(5);
+        table.column(1).format().width(18);
+        table.column(2).format().width(14);
+        table.column(3).format().width(12);
+        table.column(4).format().width(8);
+        table.column(5).format().width(6);
+        cout << table << endl;
+    }
+    pressEnter();
+}
+
+// [MODUL 6] Jump Search User (exact match, O(√n))
+void searchUserJump() {
+    if (jumlahUser == 0) {
+        cout << "Belum ada user terdaftar." << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Masukkan nama user yang dicari (tepat): ";
+    string target;
+    getline(cin, target);
+
+    sortUsersByName();
+
+    int n = jumlahUser;
+    int step = sqrt(n);
+    int prev = 0;
+
+    while (daftarUser[min(step, n) - 1].name < target) {
+        prev = step;
+        step += sqrt(n);
+        if (prev >= n) {
+            cout << "Tidak ada user dengan nama \"" << target << "\"" << endl;
+            pressEnter();
+            return;
+        }
+    }
+
+    int foundIdx = -1;
+    for (int i = prev; i < min(step, n); i++) {
+        if (daftarUser[i].name == target) {
+            foundIdx = i;
+            break;
+        }
+    }
+
+    if (foundIdx == -1) {
+        cout << "Tidak ada user dengan nama \"" << target << "\"" << endl;
+    } else {
+        Table table;
+        table.add_row({"No", "Nama", "No. HP", "Kota", "Role", "VIP"});
+        table.add_row({
+            "1",
+            daftarUser[foundIdx].name,
+            daftarUser[foundIdx].phone,
+            daftarUser[foundIdx].alamat.kota,
+            daftarUser[foundIdx].role,
+            daftarUser[foundIdx].isVIP ? "Ya" : "Tidak"
+        });
+        table.column(0).format().width(5);
+        table.column(1).format().width(18);
+        table.column(2).format().width(14);
+        table.column(3).format().width(12);
+        table.column(4).format().width(8);
+        table.column(5).format().width(6);
+        cout << table << endl;
+    }
     pressEnter();
 }
 
@@ -296,14 +568,16 @@ void displayAllUsers() {
     }
 
     Table table;
-    table.add_row({"No", "Nama", "No. HP", "Role", "VIP"});
+    table.add_row({"No", "Nama", "No. HP", "Kota", "Role", "VIP"});
 
     for (int i = 0; i < jumlahUser; i++) {
         table.add_row({
-            intToString(i + 1),
+            toString(i + 1),
             daftarUser[i].name,
             daftarUser[i].phone,
+            daftarUser[i].alamat.kota,
             daftarUser[i].role,
+            // [MODUL 1] Ternary Operator
             daftarUser[i].isVIP ? "Ya" : "Tidak"
         });
     }
@@ -365,12 +639,17 @@ void deleteUser() {
         return;
     }
 
+    string deletedID = daftarUser[idx].id;
+    string deletedName = daftarUser[idx].name;
+
+    // [MODUL 2] CRUD Array: Delete (geser elemen)
     for (int i = idx; i < jumlahUser - 1; i++) {
         daftarUser[i] = daftarUser[i + 1];
     }
     jumlahUser--;
 
     saveUsers();
+    logAudit("HAPUS_USER", "ID: " + deletedID + ", Nama: " + deletedName);
     cout << "User berhasil dihapus!" << endl;
     pressEnter();
 }
@@ -413,10 +692,52 @@ void setVIPStatus() {
 
     int idx = customerIdx[pilihan - 1];
 
+    // [MODUL 1] Operator Logika NOT (!): toggle nilai boolean
     daftarUser[idx].isVIP = !daftarUser[idx].isVIP;
     saveUsers();
+    logAudit("VIP_TOGGLE", "User ID: " + daftarUser[idx].id + ", VIP: " + (daftarUser[idx].isVIP ? "true" : "false"));
 
     cout << "Status VIP user " << daftarUser[idx].name
          << " sekarang: " << (daftarUser[idx].isVIP ? "VIP" : "Reguler") << endl;
+    pressEnter();
+}
+
+void changePassword(const string& userID) {
+    int idx = findUserIndexByID(userID);
+    if (idx == -1) {
+        cout << "User tidak ditemukan!" << endl;
+        pressEnter();
+        return;
+    }
+
+    string oldPass, newPass, confirmPass;
+    cout << "Password lama: ";
+    getline(cin, oldPass);
+    if (daftarUser[idx].password != oldPass) {
+        cout << "Password lama salah!" << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Password baru: ";
+    getline(cin, newPass);
+    if (newPass.length() < 4) {
+        cout << "Password minimal 4 karakter!" << endl;
+        pressEnter();
+        return;
+    }
+
+    cout << "Konfirmasi password baru: ";
+    getline(cin, confirmPass);
+    if (newPass != confirmPass) {
+        cout << "Konfirmasi password tidak cocok!" << endl;
+        pressEnter();
+        return;
+    }
+
+    daftarUser[idx].password = newPass;
+    saveUsers();
+    logAudit("CHANGE_PASSWORD", "User ID: " + userID);
+    cout << "Password berhasil diubah!" << endl;
     pressEnter();
 }

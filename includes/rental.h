@@ -1,4 +1,4 @@
-#ifndef RENTAL_H
+#ifndef RENTAL_H // [MODUL 8] Include Guards
 #define RENTAL_H
 
 #include <string>
@@ -14,6 +14,7 @@ struct Rental {
     int duration;
     float totalPrice;
     string status;
+    float lateFee;
 };
 
 extern Rental daftarRental[MAX_RENTALS];
@@ -22,6 +23,8 @@ extern int jumlahRental;
 void sewaIPhone(const string& userID);
 void returnIPhone();
 void displayAllRentals();
+void displayRentalsByStatus(const string& status);
+void searchRentalsByUser();
 void displayUserRentals(const string& userID);
 void generateReport();
 void loadRentals();

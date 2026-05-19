@@ -1,4 +1,4 @@
-#ifndef RESERVATION_H
+#ifndef RESERVATION_H // [MODUL 8] Include Guards
 #define RESERVATION_H
 
 #include <string>
@@ -20,6 +20,8 @@ extern int jumlahReservasi;
 
 void buatReservasi(const string& userID);
 void processReservations(const string& iphoneID);
+void cancelReservation();
+void processReservationManually();
 void displayAllReservations();
 void displayUserReservations(const string& userID);
 void sortReservationsByPriority();
