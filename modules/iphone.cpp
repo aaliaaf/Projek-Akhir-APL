@@ -203,11 +203,7 @@ void loadIPhones() {
 
             // [MODUL 8] Contoh throw logic_error: validasi data
             if (fields[1].empty()) {
-                throw logic_error("Nama iPhone tidak boleh kosong!");
-            }
-            // [MODUL 8] Contoh throw length_error: kapasitas penuh
-            if (jumlahIPhone >= MAX_IPHONES - 1) {
-                throw length_error("Jumlah iPhone mencapai batas maksimum!");
+                continue;
             }
 
             // [MODUL 2] CRUD Array: Create (memasukkan data ke array)
@@ -226,22 +222,16 @@ void loadIPhones() {
         file.close();
     } catch (const invalid_argument& e) { // [MODUL 8] Tipe Exception: invalid_argument
         cerr << "Error data iPhone: " << e.what() << endl;
-        jumlahIPhone = 0;
     } catch (const out_of_range& e) { // [MODUL 8] Tipe Exception: out_of_range
         cerr << "Error rentang data: " << e.what() << endl;
-        jumlahIPhone = 0;
     } catch (const length_error& e) { // [MODUL 8] Tipe Exception: length_error (harus sebelum logic_error)
         cerr << "Length error: " << e.what() << endl;
-        jumlahIPhone = 0;
     } catch (const logic_error& e) { // [MODUL 8] Tipe Exception: logic_error (induk length_error)
         cerr << "Logic error: " << e.what() << endl;
-        jumlahIPhone = 0;
     } catch (const runtime_error& e) { // [MODUL 8] Tipe Exception: runtime_error
         cerr << "Runtime error: " << e.what() << endl;
-        jumlahIPhone = 0;
     } catch (const exception& e) { // [MODUL 8] catch block umum
         cerr << "Error loading iPhones: " << e.what() << endl;
-        jumlahIPhone = 0;
     }
 }
 
@@ -259,15 +249,15 @@ void saveIPhones() {
 
     // [MODUL 1] Perulangan for
     for (int i = 0; i < jumlahIPhone; i++) {
-        file << daftarIPhone[i].id << ","
-             << daftarIPhone[i].name << ","
-             << daftarIPhone[i].storage << ","
+           file << escapeCSVField(daftarIPhone[i].id) << ","
+               << escapeCSVField(daftarIPhone[i].name) << ","
+               << escapeCSVField(daftarIPhone[i].storage) << ","
              << toString(daftarIPhone[i].rentPrice) << ","
-             << daftarIPhone[i].status << ","
+               << escapeCSVField(daftarIPhone[i].status) << ","
              << toString(daftarIPhone[i].totalRented) << ","
-             << daftarIPhone[i].color << ","
+               << escapeCSVField(daftarIPhone[i].color) << ","
              << toString(daftarIPhone[i].year) << ","
-             << daftarIPhone[i].condition << endl;
+               << escapeCSVField(daftarIPhone[i].condition) << endl;
     }
 
     file.close();
@@ -342,7 +332,12 @@ void tambahIPhone() {
     }
     float price = suggested;
 
-    int newID = jumlahIPhone + 1; // [MODUL 1] Operator Aritmatika: +
+    int newID = 0;
+    for (int i = 0; i < jumlahIPhone; i++) {
+        int suffix = stringToInt(daftarIPhone[i].id.substr(2));
+        if (suffix > newID) newID = suffix;
+    }
+    newID++;
     string id = formatID("IP", newID);
 
     // [MODUL 2] CRUD Array: Create (inisialisasi)

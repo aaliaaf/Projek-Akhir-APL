@@ -58,7 +58,6 @@ void loadUsers() {
         file.close();
     } catch (const exception& e) {
         cerr << "Error loading users: " << e.what() << endl;
-        jumlahUser = 0;
     }
 }
 
@@ -75,16 +74,16 @@ void saveUsers() {
     file << "id,name,phone,username,password,role,is_vip,jalan,kota,kode_pos" << endl;
 
     for (int i = 0; i < jumlahUser; i++) {
-        file << daftarUser[i].id << ","
-             << daftarUser[i].name << ","
-             << daftarUser[i].phone << ","
-             << daftarUser[i].username << ","
-             << daftarUser[i].password << ","
-             << daftarUser[i].role << ","
+           file << escapeCSVField(daftarUser[i].id) << ","
+               << escapeCSVField(daftarUser[i].name) << ","
+               << escapeCSVField(daftarUser[i].phone) << ","
+               << escapeCSVField(daftarUser[i].username) << ","
+               << escapeCSVField(daftarUser[i].password) << ","
+               << escapeCSVField(daftarUser[i].role) << ","
              << (daftarUser[i].isVIP ? "true" : "false") << ","
-             << daftarUser[i].alamat.jalan << ","
-             << daftarUser[i].alamat.kota << ","
-             << daftarUser[i].alamat.kodePos << endl;
+               << escapeCSVField(daftarUser[i].alamat.jalan) << ","
+               << escapeCSVField(daftarUser[i].alamat.kota) << ","
+               << escapeCSVField(daftarUser[i].alamat.kodePos) << endl;
     }
 
     file.close();
@@ -189,7 +188,12 @@ void registerUser() {
     cout << "Alamat - Kode Pos: ";
     getline(cin, kodePos);
 
-    int newID = jumlahUser + 1;
+    int newID = 0;
+    for (int i = 0; i < jumlahUser; i++) {
+        int suffix = stringToInt(daftarUser[i].id.substr(3));
+        if (suffix > newID) newID = suffix;
+    }
+    newID++;
     string id = formatID("USR", newID);
 
     // [MODUL 2] Inisialisasi field struct dengan operator .
@@ -264,7 +268,12 @@ void tambahUser() {
     cout << "Alamat - Kode Pos: ";
     getline(cin, kodePos);
 
-    int newID = jumlahUser + 1;
+    int newID = 0;
+    for (int i = 0; i < jumlahUser; i++) {
+        int suffix = stringToInt(daftarUser[i].id.substr(3));
+        if (suffix > newID) newID = suffix;
+    }
+    newID++;
     string id = formatID("USR", newID);
 
     daftarUser[jumlahUser].id = id;

@@ -44,7 +44,6 @@ void loadReservations() {
         file.close();
     } catch (const exception& e) {
         cerr << "Error loading reservations: " << e.what() << endl;
-        jumlahReservasi = 0;
     }
 }
 
@@ -61,12 +60,12 @@ void saveReservations() {
     file << "reservation_id,user_id,iphone_id,reservation_date,priority,status" << endl;
 
     for (int i = 0; i < jumlahReservasi; i++) {
-        file << daftarReservasi[i].reservationID << ","
-             << daftarReservasi[i].userID << ","
-             << daftarReservasi[i].iphoneID << ","
-             << daftarReservasi[i].reservationDate << ","
-             << daftarReservasi[i].priority << ","
-             << daftarReservasi[i].status << endl;
+           file << escapeCSVField(daftarReservasi[i].reservationID) << ","
+               << escapeCSVField(daftarReservasi[i].userID) << ","
+               << escapeCSVField(daftarReservasi[i].iphoneID) << ","
+               << escapeCSVField(daftarReservasi[i].reservationDate) << ","
+               << escapeCSVField(daftarReservasi[i].priority) << ","
+               << escapeCSVField(daftarReservasi[i].status) << endl;
     }
 
     file.close();
@@ -143,7 +142,12 @@ void buatReservasi(const string& userID) {
         priority = "VIP"; // [MODUL 1] Operator Penugasan: =
     }
 
-    int newID = jumlahReservasi + 1;
+    int newID = 0;
+    for (int i = 0; i < jumlahReservasi; i++) {
+        int suffix = stringToInt(daftarReservasi[i].reservationID.substr(3));
+        if (suffix > newID) newID = suffix;
+    }
+    newID++;
     string resID = formatID("RSV", newID);
 
     daftarReservasi[jumlahReservasi].reservationID = resID;
@@ -380,24 +384,42 @@ void displayAllReservations() {
         return;
     }
 
-    sortReservationsByPriority();
+    int order[MAX_RESERVATIONS];
+    for (int i = 0; i < jumlahReservasi; i++) {
+        order[i] = i;
+    }
+
+    for (int i = 0; i < jumlahReservasi - 1; i++) {
+        for (int j = 0; j < jumlahReservasi - i - 1; j++) {
+            int left = order[j];
+            int right = order[j + 1];
+            int leftPriority = daftarReservasi[left].priority == "VIP" ? 1 : 0;
+            int rightPriority = daftarReservasi[right].priority == "VIP" ? 1 : 0;
+            if (leftPriority < rightPriority) {
+                int temp = order[j];
+                order[j] = order[j + 1];
+                order[j + 1] = temp;
+            }
+        }
+    }
 
     Table table;
     table.add_row({"No", "User", "iPhone", "Tgl Reservasi", "Prioritas", "Status"});
 
     for (int i = 0; i < jumlahReservasi; i++) {
-        int phoneIdx = findiPhoneByID(daftarReservasi[i].iphoneID);
+        int idx = order[i];
+        int phoneIdx = findiPhoneByID(daftarReservasi[idx].iphoneID);
         string phoneName = phoneIdx != -1 ? daftarIPhone[phoneIdx].name : "Unknown";
-        int userIdx = findUserIndexByID(daftarReservasi[i].userID);
-        string userName = userIdx != -1 ? daftarUser[userIdx].name : daftarReservasi[i].userID;
-        string statusText = (daftarReservasi[i].status == "waiting") ? "Menunggu" : "Diproses";
+        int userIdx = findUserIndexByID(daftarReservasi[idx].userID);
+        string userName = userIdx != -1 ? daftarUser[userIdx].name : daftarReservasi[idx].userID;
+        string statusText = (daftarReservasi[idx].status == "waiting") ? "Menunggu" : "Diproses";
 
         table.add_row({
             toString(i + 1),
             userName,
             phoneName,
-            daftarReservasi[i].reservationDate,
-            daftarReservasi[i].priority,
+            daftarReservasi[idx].reservationDate,
+            daftarReservasi[idx].priority,
             statusText
         });
     }

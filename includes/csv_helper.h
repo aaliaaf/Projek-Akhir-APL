@@ -6,6 +6,7 @@
 using namespace std;
 
 vector<string> splitCSVRow(const string& row);
+string escapeCSVField(const string& field);
 string trimString(const string& str);
 bool parseBoolean(const string& str);
 

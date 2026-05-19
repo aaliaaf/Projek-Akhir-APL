@@ -52,7 +52,6 @@ void loadRentals() {
         file.close();
     } catch (const exception& e) {
         cerr << "Error loading rentals: " << e.what() << endl;
-        jumlahRental = 0;
     }
 }
 
@@ -69,13 +68,13 @@ void saveRentals() {
     file << "rental_id,user_id,iphone_id,start_date,duration,total_price,status,late_fee" << endl;
 
     for (int i = 0; i < jumlahRental; i++) {
-        file << daftarRental[i].rentalID << ","
-             << daftarRental[i].userID << ","
-             << daftarRental[i].iphoneID << ","
-             << daftarRental[i].startDate << ","
+           file << escapeCSVField(daftarRental[i].rentalID) << ","
+               << escapeCSVField(daftarRental[i].userID) << ","
+               << escapeCSVField(daftarRental[i].iphoneID) << ","
+               << escapeCSVField(daftarRental[i].startDate) << ","
              << toString(daftarRental[i].duration) << ","
              << toString(daftarRental[i].totalPrice) << ","
-             << daftarRental[i].status << ","
+               << escapeCSVField(daftarRental[i].status) << ","
              << toString(daftarRental[i].lateFee) << endl;
     }
 
@@ -148,7 +147,12 @@ void sewaIPhone(const string& userID) {
         return;
     }
 
-    int newID = jumlahRental + 1;
+    int newID = 0;
+    for (int i = 0; i < jumlahRental; i++) {
+        int suffix = stringToInt(daftarRental[i].rentalID.substr(3));
+        if (suffix > newID) newID = suffix;
+    }
+    newID++;
     string rentalID = formatID("RNT", newID);
 
     daftarRental[jumlahRental].rentalID = rentalID;
@@ -169,34 +173,33 @@ void sewaIPhone(const string& userID) {
 
     logAudit("SEWA_IPHONE", "ID: " + rentalID + ", iPhone: " + daftarIPhone[idx].name);
 
-    // Invoice markdown
-    filesystem::path invoicesDir = resolveProjectPath("invoices");
-    filesystem::create_directories(invoicesDir);
+    // Invoice text file in reports folder
+    filesystem::path reportsDir = resolveProjectPath("data/reports");
+    filesystem::create_directories(reportsDir);
 
-    ofstream inv(invoicesDir / (rentalID + ".md"));
+    ofstream inv(reportsDir / (rentalID + ".txt"));
     if (inv.is_open()) {
-        inv << "# INVOICE PENYEWAAN IPHONE" << endl;
+        inv << "INVOICE PENYEWAAN IPHONE" << endl;
         inv << endl;
-        inv << "**ID Rental:** " << rentalID << endl;
-        inv << "**Tanggal:** " << getCurrentDateTime() << endl;
-        inv << "**User ID:** " << userID << endl;
+        inv << "ID Rental: " << rentalID << endl;
+        inv << "Tanggal: " << getCurrentDateTime() << endl;
+        inv << "User ID: " << userID << endl;
         inv << endl;
-        inv << "## Detail iPhone" << endl;
-        inv << "- **Nama:** " << daftarIPhone[idx].name << endl;
-        inv << "- **Storage:** " << daftarIPhone[idx].storage << endl;
-        inv << "- **Warna:** " << daftarIPhone[idx].color << endl;
-        inv << "- **Tahun:** " << toString(daftarIPhone[idx].year) << endl;
-        inv << "- **Harga/Hari:** Rp" << toString(daftarIPhone[idx].rentPrice) << endl;
+        inv << "Detail iPhone" << endl;
+        inv << "Nama: " << daftarIPhone[idx].name << endl;
+        inv << "Storage: " << daftarIPhone[idx].storage << endl;
+        inv << "Warna: " << daftarIPhone[idx].color << endl;
+        inv << "Tahun: " << toString(daftarIPhone[idx].year) << endl;
+        inv << "Harga/Hari: Rp" << toString(daftarIPhone[idx].rentPrice) << endl;
         inv << endl;
-        inv << "## Detail Sewa" << endl;
-        inv << "- **Mulai:** " << startDate << endl;
-        inv << "- **Durasi:** " << toString(duration) << " hari" << endl;
-        inv << "- **Total:** Rp" << toString(totalPrice) << endl;
+        inv << "Detail Sewa" << endl;
+        inv << "Mulai: " << startDate << endl;
+        inv << "Durasi: " << toString(duration) << " hari" << endl;
+        inv << "Total: Rp" << toString(totalPrice) << endl;
         inv << endl;
-        inv << "---" << endl;
-        inv << "*Terima kasih telah menggunakan layanan kami.*" << endl;
+        inv << "Terima kasih telah menggunakan layanan kami." << endl;
         inv.close();
-        cout << "Invoice tersimpan: " << (invoicesDir / (rentalID + ".md")).string() << endl;
+        cout << "Invoice tersimpan: " << (reportsDir / (rentalID + ".txt")).string() << endl;
     }
 
     cout << "Penyewaan berhasil! ID Rental: " << rentalID << endl;
@@ -249,29 +252,27 @@ void returnIPhone() {
     daftarRental[idx].status = "completed";
 
     // Hitung denda overdue
-    string expectedDate = daftarRental[idx].startDate;
-    int y, m, d, dur = daftarRental[idx].duration;
-    y = stringToInt(expectedDate.substr(0, 4));
-    m = stringToInt(expectedDate.substr(5, 2));
-    d = stringToInt(expectedDate.substr(8, 2));
-    d += dur;
-    while (d > 30) { d -= 30; m++; if (m > 12) { m = 1; y++; } }
-    stringstream expSS;
-    expSS << y << "-" << setw(2) << setfill('0') << m << "-" << setw(2) << setfill('0') << d;
-    string expectedReturn = expSS.str();
+    auto parseDate = [](const string& date) {
+        tm t{};
+        t.tm_year = stringToInt(date.substr(0, 4)) - 1900;
+        t.tm_mon = stringToInt(date.substr(5, 2)) - 1;
+        t.tm_mday = stringToInt(date.substr(8, 2));
+        t.tm_hour = 12;
+        return t;
+    };
 
-    string today = getCurrentDate();
+    tm startTm = parseDate(daftarRental[idx].startDate);
+    time_t startTime = mktime(&startTm);
+    time_t expectedTime = startTime == static_cast<time_t>(-1)
+        ? static_cast<time_t>(-1)
+        : startTime + static_cast<time_t>(daftarRental[idx].duration) * 86400;
+
+    tm todayTm = parseDate(getCurrentDate());
+    time_t todayTime = mktime(&todayTm);
     int lateDays = 0;
-    if (today > expectedReturn) {
-        int ty, tm, td, ey, em, ed;
-        ty = stringToInt(today.substr(0, 4));
-        tm = stringToInt(today.substr(5, 2));
-        td = stringToInt(today.substr(8, 2));
-        ey = stringToInt(expectedReturn.substr(0, 4));
-        em = stringToInt(expectedReturn.substr(5, 2));
-        ed = stringToInt(expectedReturn.substr(8, 2));
-        lateDays = (ty - ey) * 365 + (tm - em) * 30 + (td - ed);
-        if (lateDays < 0) lateDays = 0;
+    if (expectedTime != static_cast<time_t>(-1) && todayTime != static_cast<time_t>(-1) && difftime(todayTime, expectedTime) > 0) {
+        lateDays = static_cast<int>(difftime(todayTime, expectedTime) / 86400.0);
+        if (lateDays < 1) lateDays = 1;
 
         int phoneIdx2 = findiPhoneByID(daftarRental[idx].iphoneID);
         float dailyRate = phoneIdx2 != -1 ? daftarIPhone[phoneIdx2].rentPrice : 0;
@@ -331,6 +332,28 @@ void displayAllRentals() {
 
     cout << table << endl;
     pressEnter();
+}
+
+static int reservationPriorityRank(const Reservation& reservation) {
+    return reservation.priority == "VIP" ? 1 : 0;
+}
+
+static void sortReservationIndicesByPriority(const int* source, int count, int* destination) {
+    for (int i = 0; i < count; i++) {
+        destination[i] = source[i];
+    }
+
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            int left = destination[j];
+            int right = destination[j + 1];
+            if (reservationPriorityRank(daftarReservasi[left]) < reservationPriorityRank(daftarReservasi[right])) {
+                int temp = destination[j];
+                destination[j] = destination[j + 1];
+                destination[j + 1] = temp;
+            }
+        }
+    }
 }
 
 void displayRentalsByStatus(const string& status) {

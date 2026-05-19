@@ -3,17 +3,61 @@
 
 #include "csv_helper.h"
 #include <sstream>
+#include <cctype>
 
 vector<string> splitCSVRow(const string& row) {
-    vector<string> fields; // [MODUL 2] Vector: tipe data kolektif dinamis
-    stringstream ss(row);
+    vector<string> fields;
     string field;
+    bool inQuotes = false;
 
-    while (getline(ss, field, ',')) { // [MODUL 1] Perulangan while
-        fields.push_back(trimString(field)); // [MODUL 2] CRUD Vector: Create (push_back)
+    for (size_t i = 0; i < row.size(); i++) {
+        char ch = row[i];
+        if (inQuotes) {
+            if (ch == '"') {
+                if (i + 1 < row.size() && row[i + 1] == '"') {
+                    field.push_back('"');
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                field.push_back(ch);
+            }
+        } else {
+            if (ch == '"') {
+                inQuotes = true;
+            } else if (ch == ',') {
+                fields.push_back(trimString(field));
+                field.clear();
+            } else {
+                field.push_back(ch);
+            }
+        }
     }
 
+    fields.push_back(trimString(field));
+
     return fields;
+}
+
+string escapeCSVField(const string& field) {
+    bool needQuotes = false;
+    for (char ch : field) {
+        if (ch == ',' || ch == '"' || ch == '\n' || ch == '\r') {
+            needQuotes = true;
+            break;
+        }
+    }
+
+    if (!needQuotes) return field;
+
+    string escaped = "\"";
+    for (char ch : field) {
+        if (ch == '"') escaped += "\"\"";
+        else escaped.push_back(ch);
+    }
+    escaped += "\"";
+    return escaped;
 }
 
 string trimString(const string& str) {
@@ -35,7 +79,7 @@ string trimString(const string& str) {
 bool parseBoolean(const string& str) {
     string lower = "";
     for (char c : str) { // [MODUL 1] foreach loop
-        lower += tolower(c); // [MODUL 1] Operator Penugasan: +=
+        lower += static_cast<char>(tolower(static_cast<unsigned char>(c)));
     }
     return lower == "true";
 }

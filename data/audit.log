@@ -42,3 +42,12 @@
 [2026-05-19 18:13:03] LAPORAN: Per-user generated
 [2026-05-19 18:13:04] LAPORAN: Per-user generated
 [2026-05-19 18:13:17] EKSPOR: Full report exported to /home/zak/Work/kuliah/semester2/praktikum/apl/projek-akhir/proyek-akhir-apl/data/reports/2026-05-19-laporan.txt
+[2026-05-19 18:45:35] LAPORAN: Overview generated
+[2026-05-19 18:45:43] LAPORAN: Monthly generated
+[2026-05-19 18:47:42] LAPORAN: Monthly generated
+[2026-05-19 18:49:47] LAPORAN: Per-phone generated
+[2026-05-19 18:50:29] LAPORAN: Per-user generated
+[2026-05-19 20:34:12] VIP_TOGGLE: User ID: USR007, VIP: true
+[2026-05-19 21:10:48] REGISTER_USER: ID: USR010, Username: sifwah
+[2026-05-19 21:15:05] SEWA_IPHONE: ID: RNT009, iPhone: iPhone 16 Pro Max
+[2026-05-19 21:16:11] CHANGE_PASSWORD: User ID: USR010

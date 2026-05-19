@@ -3,7 +3,19 @@
 #include <iostream> // [MODUL 1] I/O: cout, cin
 #include <sstream>
 #include <iomanip>
+#include <cstdlib>
 using namespace std;
+
+static bool isLeapYear(int year) {
+    return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
+}
+
+static int daysInMonth(int year, int month) {
+    if (month < 1 || month > 12) return 0;
+    const int normalDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (month == 2 && isLeapYear(year)) return 29;
+    return normalDays[month - 1];
+}
 
 // [MODUL 1] Tipe Data Primitif: bool, string
 // [MODUL 1] Percabangan if dengan operator logika (&&, ||)
@@ -45,13 +57,14 @@ bool isValidDate(const string& date) {
         }
     }
 
+    int year = stringToInt(date.substr(0, 4));
     int month = stringToInt(date.substr(5, 2));
     int day = stringToInt(date.substr(8, 2));
 
     // [MODUL 1] Operator Logika AND (&&)
     if (month < 1 || month > 12) return false;
-    // [MODUL 1] Nested if yang lain
-    if (day < 1 || day > 31) return false;
+    int maxDay = daysInMonth(year, month);
+    if (day < 1 || day > maxDay) return false;
 
     return true;
 }
@@ -64,7 +77,10 @@ int getValidInt(const string& prompt) {
     // [MODUL 1] Perulangan while
     while (true) {
         cout << prompt; // [MODUL 1] I/O: cout
-        getline(cin, input); // [MODUL 1] I/O: getline
+        if (!getline(cin, input)) {
+            cout << "Input stream ditutup. Program berhenti." << endl;
+            exit(0);
+        }
 
         // [MODUL 1] Operator Logika: &&
         stringstream ss(input);
@@ -82,7 +98,10 @@ float getValidFloat(const string& prompt) {
 
     while (true) {
         cout << prompt;
-        getline(cin, input);
+        if (!getline(cin, input)) {
+            cout << "Input stream ditutup. Program berhenti." << endl;
+            exit(0);
+        }
         stringstream ss(input);
         if (ss >> val && ss.eof()) {
             return val;
@@ -94,7 +113,10 @@ float getValidFloat(const string& prompt) {
 string getValidString(const string& prompt) {
     string input;
     cout << prompt;
-    getline(cin, input);
+    if (!getline(cin, input)) {
+        cout << "Input stream ditutup. Program berhenti." << endl;
+        exit(0);
+    }
     return input;
 }
 
@@ -106,7 +128,10 @@ int getMenuChoice(int min, int max) {
     // [MODUL 1] Perulangan while
     while (true) {
         cout << "Pilih: ";
-        getline(cin, input);
+        if (!getline(cin, input)) {
+            cout << "Input stream ditutup. Program berhenti." << endl;
+            exit(0);
+        }
 
         // [MODUL 1] Operator Perbandingan: >=, <=
         // [MODUL 1] Operator Logika: AND (&&)
@@ -132,9 +157,10 @@ string getValidDateSplit() {
         cout << "Bulan harus 1-12!" << endl;
     }
     while (true) {
+        int maxDay = daysInMonth(tahun, bulan);
         hari = getValidInt("Tanggal (1-31): ");
-        if (hari >= 1 && hari <= 31) break;
-        cout << "Tanggal harus 1-31!" << endl;
+        if (hari >= 1 && hari <= maxDay) break;
+        cout << "Tanggal harus 1-" << maxDay << "!" << endl;
     }
     stringstream ss;
     ss << tahun << "-"
