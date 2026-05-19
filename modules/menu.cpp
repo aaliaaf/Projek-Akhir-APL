@@ -25,7 +25,7 @@ void showMainMenu() {
         cout << "=================================" << endl;
         cout << "1. Login" << endl;
         cout << "2. Register Customer" << endl;
-        cout << "3. Lihat iPhone (Tanpa Login)" << endl;
+        cout << "3. Surfing" << endl;
         cout << "4. Keluar" << endl;
         cout << "=================================" << endl;
 
@@ -398,16 +398,52 @@ void adminManageReservations() {
 }
 
 void adminViewReports() {
-    clearScreen();
-    cout << "=================================" << endl;
-    cout << "         LAPORAN                 " << endl;
-    cout << "=================================" << endl;
+    int pilihan;
+    do {
+        clearScreen();
+        cout << "=================================" << endl;
+        cout << "         LAPORAN                 " << endl;
+        cout << "=================================" << endl;
+        cout << "1. Laporan Ringkasan" << endl;
+        cout << "2. Statistik Bulanan" << endl;
+        cout << "3. Rincian per iPhone" << endl;
+        cout << "4. Rincian per User" << endl;
+        cout << "5. Daftar Reservasi" << endl;
+        cout << "6. Ekspor Laporan Lengkap" << endl;
+        cout << "7. Kembali" << endl;
+        cout << "=================================" << endl;
 
-    generateReport();
-
-    cout << "=================================" << endl;
-    cout << "   DAFTAR RESERVASI (Laporan)    " << endl;
-    cout << "=================================" << endl;
-
-    displayAllReservations();
+        pilihan = getMenuChoice(1, 7);
+        switch (pilihan) {
+            case 1:
+                generateReportOverview();
+                pressEnter();
+                break;
+            case 2:
+                generateReportMonthly();
+                pressEnter();
+                break;
+            case 3:
+                generateReportByPhone();
+                pressEnter();
+                break;
+            case 4:
+                generateReportByUser();
+                pressEnter();
+                break;
+            case 5:
+                displayAllReservations();
+                break;
+            case 6:
+                if (exportFullReport()) {
+                    cout << "Laporan berhasil diekspor ke data/reports/" << endl;
+                } else {
+                    cout << "Gagal mengekspor laporan." << endl;
+                }
+                pressEnter();
+                break;
+            case 7:
+                break;
+        }
+    } while (pilihan != 7);
 }

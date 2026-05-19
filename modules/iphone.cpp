@@ -838,7 +838,7 @@ void displayAllIPhones() {
         cout << "=== DAFTAR IPHONE (Halaman " << page << "/" << totalPages << ") ===" << endl;
 
         Table table;
-        table.add_row({"ID", "Nama", "Storage", "Harga", "Warna", "Thn", "Kondisi", "Status", "Sewa"});
+        table.add_row({"No", "ID", "Nama", "Storage", "Harga", "Warna", "Thn", "Kondisi", "Status", "Sewa"});
 
         int start = (page - 1) * PER_PAGE;
         int end = start + PER_PAGE;
@@ -846,6 +846,7 @@ void displayAllIPhones() {
 
         for (int i = start; i < end; i++) {
             table.add_row({
+                toString(i + 1),
                 daftarIPhone[i].id,
                 daftarIPhone[i].name,
                 daftarIPhone[i].storage,
@@ -858,23 +859,26 @@ void displayAllIPhones() {
             });
         }
 
-        table.column(0).format().width(5);
-        table.column(1).format().width(18);
-        table.column(2).format().width(8);
-        table.column(3).format().width(12);
-        table.column(4).format().width(14);
-        table.column(5).format().width(5);
-        table.column(6).format().width(8);
-        table.column(7).format().width(10);
-        table.column(8).format().width(6);
+        table.column(0).format().width(4);
+        table.column(1).format().width(5);
+        table.column(2).format().width(18);
+        table.column(3).format().width(8);
+        table.column(4).format().width(12);
+        table.column(5).format().width(14);
+        table.column(6).format().width(5);
+        table.column(7).format().width(8);
+        table.column(8).format().width(10);
+        table.column(9).format().width(6);
 
         cout << table << endl;
-        cout << "n: halaman berikutnya, p: halaman sebelumnya, q: keluar" << endl;
+        cout << "1. Halaman berikutnya" << endl;
+        cout << "2. Halaman sebelumnya" << endl;
+        cout << "0. Kembali" << endl;
         cout << "Pilih: ";
         getline(cin, input);
-        if (input == "n" && page < totalPages) page++;
-        else if (input == "p" && page > 1) page--;
-        else if (input == "q") break;
+        if ((input == "1" || input == "n") && page < totalPages) page++;
+        else if ((input == "2" || input == "p") && page > 1) page--;
+        else if (input == "0" || input == "q") break;
     }
 }
 

@@ -457,16 +457,21 @@ void displayUserRentals(const string& userID) {
 // [MODUL 4] Dereference (*): mengakses nilai dari pointer
 // [MODUL 4] Arrow operator (->): mengakses field struct melalui pointer
 void generateReport() {
+    generateReportOverview();
+    generateReportMonthly();
+    generateReportByPhone();
+    generateReportByUser();
+}
+
+void generateReportOverview() {
     float totalPendapatan = 0;
     float totalDenda = 0;
     int totalAktif = 0;
     int totalSelesai = 0;
     int totalOverdue = 0;
     int maxRented = -1;
-    // [MODUL 4] Deklarasi pointer ke struct iPhone
-    iPhone* maxPtr = nullptr; // [MODUL 4] Inisialisasi pointer dengan nullptr
+    iPhone* maxPtr = nullptr;
 
-    // [MODUL 1] Operator Aritmatika: += (penugasan)
     for (int i = 0; i < jumlahRental; i++) {
         if (daftarRental[i].status == "completed") {
             totalPendapatan += daftarRental[i].totalPrice;
@@ -480,8 +485,39 @@ void generateReport() {
         }
     }
 
-    // [MODUL 2] Array 2D: statistik sewa per bulan [bulan][jenis]
-    // jenis: 0=total, 1=aktif, 2=selesai, 3=pendapatan
+    int totalKombinasi = jumlahIPhone > 1 ? faktorial(jumlahIPhone) / (2 * faktorial(jumlahIPhone - 2)) : 0;
+    for (iPhone* ptr = daftarIPhone; ptr < daftarIPhone + jumlahIPhone; ptr++) {
+        if (ptr->totalRented > maxRented) {
+            maxRented = ptr->totalRented;
+            maxPtr = ptr;
+        }
+    }
+
+    Table overview;
+    overview.add_row({"Metrik", "Nilai"});
+    overview.add_row({"Total Pendapatan", formatCurrency(totalPendapatan)});
+    overview.add_row({"Total Denda", formatCurrency(totalDenda)});
+    overview.add_row({"Total Transaksi", toString(jumlahRental)});
+    overview.add_row({"  - Aktif", toString(totalAktif)});
+    overview.add_row({"  - Selesai", toString(totalSelesai)});
+    overview.add_row({"  - Overdue (Kena Denda)", toString(totalOverdue)});
+    overview.add_row({"Total iPhone", toString(jumlahIPhone)});
+    float rataRata = jumlahRental > 0 ? totalPendapatan / jumlahRental : 0;
+    overview.add_row({"Rata-rata/Transaksi", formatCurrency(rataRata)});
+    overview.add_row({"Kombinasi 2 iPhone", toString(totalKombinasi)});
+    if (maxPtr != nullptr && maxRented > 0) {
+        overview.add_row({"iPhone Terpopuler", maxPtr->name + " (" + toString(maxRented) + "x)"});
+    } else {
+        overview.add_row({"iPhone Terpopuler", "Belum ada data"});
+    }
+    overview.column(0).format().width(30);
+    overview.column(1).format().width(26);
+    cout << "=== LAPORAN RINGKASAN ===" << endl;
+    cout << overview << endl;
+    logAudit("LAPORAN", "Overview generated");
+}
+
+void generateReportMonthly() {
     int statsBulan[12][4] = {0};
     for (int i = 0; i < jumlahRental; i++) {
         int bulan = stringToInt(daftarRental[i].startDate.substr(5, 2)) - 1;
@@ -492,8 +528,6 @@ void generateReport() {
         statsBulan[bulan][3] += daftarRental[i].totalPrice;
     }
 
-    // [MODUL 4] Pointer sebagai parameter: urutkan bulan pakai swapByPointer
-    // [MODUL 4] Cari bulan dengan pendapatan tertinggi & terendah pakai pointer swap
     int bulanIdx[12];
     for (int i = 0; i < 12; i++) bulanIdx[i] = i;
     for (int i = 0; i < 11; i++) {
@@ -504,52 +538,6 @@ void generateReport() {
         }
     }
 
-    // [MODUL 3] Rekursif: faktorial untuk kombinasi
-    int totalKombinasi = jumlahIPhone > 1 ? faktorial(jumlahIPhone) / (2 * faktorial(jumlahIPhone - 2)) : 0;
-
-    // [MODUL 4] Pointer pada Array: iterasi menggunakan pointer arithmetic
-    // [MODUL 4] daftarIPhone adalah pointer ke elemen pertama array
-    // [MODUL 4] ptr < daftarIPhone + jumlahIPhone: pointer arithmetic
-    for (iPhone* ptr = daftarIPhone; ptr < daftarIPhone + jumlahIPhone; ptr++) {
-        // [MODUL 4] Arrow operator (->): mengakses field melalui pointer
-        if (ptr->totalRented > maxRented) {
-            maxRented = ptr->totalRented;
-            maxPtr = ptr; // [MODUL 4] Simpan alamat pointer
-        }
-    }
-
-    Table table;
-    table.add_row({"Metrik", "Nilai"});
-
-    table.add_row({"Total Pendapatan", "Rp" + toString(totalPendapatan)});
-    table.add_row({"Total Denda", "Rp" + toString(totalDenda)});
-    table.add_row({"Total Transaksi", toString(jumlahRental)});
-    table.add_row({"  - Aktif", toString(totalAktif)});
-    table.add_row({"  - Selesai", toString(totalSelesai)});
-    table.add_row({"  - Overdue (Kena Denda)", toString(totalOverdue)});
-    table.add_row({"Total iPhone", toString(jumlahIPhone)});
-
-    // [MODUL 6] Boundary handling: cek division by zero
-    // [MODUL 1] Ternary Operator untuk mencegah pembagian dengan 0
-    float rataRata = jumlahRental > 0 ? totalPendapatan / jumlahRental : 0;
-    table.add_row({"Rata-rata/Transaksi", "Rp" + toString(rataRata)});
-
-    // [MODUL 3] Rekursif: tampilkan kombinasi
-    table.add_row({"Kombinasi 2 iPhone", toString(totalKombinasi)});
-
-    // [MODUL 4] Null check pada pointer sebelum dereference
-    if (maxPtr != nullptr && maxRented > 0) {
-        table.add_row({"iPhone Terpopuler", maxPtr->name + " (" + toString(maxRented) + "x)"});
-    } else {
-        table.add_row({"iPhone Terpopuler", "Belum ada data"});
-    }
-
-    table.column(0).format().width(24);
-    table.column(1).format().width(26);
-
-    cout << table << endl;
-
-    // [MODUL 2] Tampilkan array 2D: statistik bulanan
     cout << "\n=== Statistik Bulanan (Pendapatan) ===" << endl;
     cout << "Bulan dengan pendapatan tertinggi:" << endl;
     for (int i = 0; i < 3 && i < 12; i++) {
@@ -563,10 +551,169 @@ void generateReport() {
             case 9: namaBulan = "Sep"; break; case 10: namaBulan = "Okt"; break;
             case 11: namaBulan = "Nov"; break; case 12: namaBulan = "Des"; break;
         }
-        cout << "  " << (i + 1) << ". " << namaBulan << ": Rp" << toString(statsBulan[bulanIdx[i]][3])
+        cout << "  " << (i + 1) << ". " << namaBulan << ": " << formatCurrency(statsBulan[bulanIdx[i]][3])
              << " (" << toString(statsBulan[bulanIdx[i]][0]) << " transaksi)" << endl;
     }
+    logAudit("LAPORAN", "Monthly generated");
+}
 
-    logAudit("LAPORAN", "Report generated");
-    pressEnter();
+void generateReportByPhone() {
+    Table tphone;
+    tphone.add_row({"No", "ID", "Nama", "Total Sewa", "Pendapatan"});
+    for (int i = 0; i < jumlahIPhone; i++) {
+        long long countRent = 0;
+        float revenue = 0;
+        for (int j = 0; j < jumlahRental; j++) {
+            if (daftarRental[j].iphoneID == daftarIPhone[i].id) {
+                countRent++;
+                revenue += daftarRental[j].totalPrice;
+            }
+        }
+        tphone.add_row({
+            toString(i + 1),
+            daftarIPhone[i].id,
+            daftarIPhone[i].name,
+            toString((int)countRent),
+            formatCurrency(revenue)
+        });
+    }
+    tphone.column(0).format().width(4);
+    tphone.column(1).format().width(8);
+    tphone.column(2).format().width(24);
+    tphone.column(3).format().width(12);
+    tphone.column(4).format().width(16);
+    cout << "\n=== Rincian per iPhone ===" << endl;
+    cout << tphone << endl;
+    logAudit("LAPORAN", "Per-phone generated");
+}
+
+void generateReportByUser() {
+    Table tuser;
+    tuser.add_row({"No", "ID", "Nama", "Transaksi", "Total Bayar"});
+    for (int i = 0; i < jumlahUser; i++) {
+        int tx = 0;
+        float spent = 0;
+        for (int j = 0; j < jumlahRental; j++) {
+            if (daftarRental[j].userID == daftarUser[i].id) {
+                tx++;
+                spent += daftarRental[j].totalPrice;
+            }
+        }
+        tuser.add_row({
+            toString(i + 1),
+            daftarUser[i].id,
+            daftarUser[i].name,
+            toString(tx),
+            formatCurrency(spent)
+        });
+    }
+    tuser.column(0).format().width(4);
+    tuser.column(1).format().width(8);
+    tuser.column(2).format().width(20);
+    tuser.column(3).format().width(10);
+    tuser.column(4).format().width(16);
+    cout << "\n=== Rincian per User ===" << endl;
+    cout << tuser << endl;
+    logAudit("LAPORAN", "Per-user generated");
+}
+
+bool exportFullReport() {
+    filesystem::path reportsDir = resolveProjectPath("data/reports");
+    filesystem::create_directories(reportsDir);
+    string fname = getCurrentDate();
+    filesystem::path out = reportsDir / (fname + "-laporan.txt");
+    ofstream f(out);
+    if (!f.is_open()) return false;
+    
+    f << "=====================================\n";
+    f << "    LAPORAN LENGKAP PENYEWAAN IPHONE\n";
+    f << "=====================================\n";
+    f << "Tanggal: " << getCurrentDateTime() << "\n\n";
+    
+    // Overview data
+    float totalPendapatan = 0;
+    float totalDenda = 0;
+    int totalAktif = 0;
+    int totalSelesai = 0;
+    int totalOverdue = 0;
+    int maxRented = -1;
+    iPhone* maxPtr = nullptr;
+    
+    for (int i = 0; i < jumlahRental; i++) {
+        if (daftarRental[i].status == "completed") {
+            totalPendapatan += daftarRental[i].totalPrice;
+            totalSelesai++;
+        } else {
+            totalAktif++;
+        }
+        if (daftarRental[i].lateFee > 0) {
+            totalDenda += daftarRental[i].lateFee;
+            totalOverdue++;
+        }
+    }
+    
+    for (iPhone* ptr = daftarIPhone; ptr < daftarIPhone + jumlahIPhone; ptr++) {
+        if (ptr->totalRented > maxRented) {
+            maxRented = ptr->totalRented;
+            maxPtr = ptr;
+        }
+    }
+    
+    // Write Overview
+    f << "=== LAPORAN RINGKASAN ===\n";
+    f << "Total Pendapatan       : " << formatCurrency(totalPendapatan) << "\n";
+    f << "Total Denda            : " << formatCurrency(totalDenda) << "\n";
+    f << "Total Transaksi        : " << toString(jumlahRental) << "\n";
+    f << "  - Aktif              : " << toString(totalAktif) << "\n";
+    f << "  - Selesai            : " << toString(totalSelesai) << "\n";
+    f << "  - Overdue (Denda)    : " << toString(totalOverdue) << "\n";
+    f << "Total iPhone           : " << toString(jumlahIPhone) << "\n";
+    
+    float rataRata = jumlahRental > 0 ? totalPendapatan / jumlahRental : 0;
+    f << "Rata-rata/Transaksi    : " << formatCurrency(rataRata) << "\n";
+    
+    if (maxPtr != nullptr && maxRented > 0) {
+        f << "iPhone Terpopuler       : " << maxPtr->name << " (" << toString(maxRented) << "x)\n";
+    }
+    f << "\n";
+    
+    // Write Per-iPhone breakdown
+    f << "=== RINCIAN PER IPHONE ===\n";
+    for (int i = 0; i < jumlahIPhone; i++) {
+        long long countRent = 0;
+        float revenue = 0;
+        for (int j = 0; j < jumlahRental; j++) {
+            if (daftarRental[j].iphoneID == daftarIPhone[i].id) {
+                countRent++;
+                revenue += daftarRental[j].totalPrice;
+            }
+        }
+        f << "  " << (i + 1) << ". " << daftarIPhone[i].name << " (" << daftarIPhone[i].id << ")\n";
+        f << "     Total Sewa : " << toString((int)countRent) << "\n";
+        f << "     Pendapatan : " << formatCurrency(revenue) << "\n";
+    }
+    f << "\n";
+    
+    // Write Per-User breakdown
+    f << "=== RINCIAN PER USER ===\n";
+    for (int i = 0; i < jumlahUser; i++) {
+        int tx = 0;
+        float spent = 0;
+        for (int j = 0; j < jumlahRental; j++) {
+            if (daftarRental[j].userID == daftarUser[i].id) {
+                tx++;
+                spent += daftarRental[j].totalPrice;
+            }
+        }
+        f << "  " << (i + 1) << ". " << daftarUser[i].name << " (" << daftarUser[i].id << ")\n";
+        f << "     Transaksi  : " << toString(tx) << "\n";
+        f << "     Total Bayar: " << formatCurrency(spent) << "\n";
+    }
+    f << "\n";
+    
+    f << "=====================================\n";
+    f << "File ini dihasilkan secara otomatis.\n";
+    f.close();
+    logAudit("EKSPOR", "Full report exported to " + out.string());
+    return true;
 }

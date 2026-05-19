@@ -13,3 +13,32 @@
 [2026-05-19 14:55:05] SORT_IPHONE: Storage ASC (Selection Sort)
 [2026-05-19 15:04:02] SORT_IPHONE: Storage ASC (Selection Sort)
 [2026-05-19 15:04:47] SORT_IPHONE: Storage ASC (Selection Sort)
+[2026-05-19 17:12:23] SORT_IPHONE: Storage ASC (Selection Sort)
+[2026-05-19 17:28:49] CANCEL_RESERVATION: ID: RSV004, User: USR006
+[2026-05-19 17:29:03] LAPORAN: Report generated
+[2026-05-19 17:31:42] TAMBAH_USER: ID: USR008, Username: jawa
+[2026-05-19 17:34:54] TAMBAH_USER: ID: USR009, Username: nah itu dia
+[2026-05-19 17:40:09] LAPORAN: Report generated
+[2026-05-19 17:41:49] LAPORAN: Report generated
+[2026-05-19 18:11:12] LAPORAN: Overview generated
+[2026-05-19 18:11:12] LAPORAN: Monthly generated
+[2026-05-19 18:11:12] LAPORAN: Per-phone generated
+[2026-05-19 18:11:12] LAPORAN: Per-user generated
+[2026-05-19 18:11:14] LAPORAN: Overview generated
+[2026-05-19 18:11:14] LAPORAN: Monthly generated
+[2026-05-19 18:11:14] LAPORAN: Per-phone generated
+[2026-05-19 18:11:14] LAPORAN: Per-user generated
+[2026-05-19 18:11:14] LAPORAN: Overview generated
+[2026-05-19 18:11:14] LAPORAN: Monthly generated
+[2026-05-19 18:11:14] LAPORAN: Per-phone generated
+[2026-05-19 18:11:14] LAPORAN: Per-user generated
+[2026-05-19 18:11:15] LAPORAN: Overview generated
+[2026-05-19 18:11:15] LAPORAN: Monthly generated
+[2026-05-19 18:11:15] LAPORAN: Per-phone generated
+[2026-05-19 18:11:15] LAPORAN: Per-user generated
+[2026-05-19 18:12:49] LAPORAN: Overview generated
+[2026-05-19 18:12:53] LAPORAN: Monthly generated
+[2026-05-19 18:12:56] LAPORAN: Per-phone generated
+[2026-05-19 18:13:03] LAPORAN: Per-user generated
+[2026-05-19 18:13:04] LAPORAN: Per-user generated
+[2026-05-19 18:13:17] EKSPOR: Full report exported to /home/zak/Work/kuliah/semester2/praktikum/apl/projek-akhir/proyek-akhir-apl/data/reports/2026-05-19-laporan.txt

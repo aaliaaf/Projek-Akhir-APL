@@ -1,0 +1,70 @@
+=====================================
+    LAPORAN LENGKAP PENYEWAAN IPHONE
+=====================================
+Tanggal: 2026-05-19 18:13:17
+
+=== LAPORAN RINGKASAN ===
+Total Pendapatan       : Rp7.800.000
+Total Denda            : Rp0
+Total Transaksi        : 8
+  - Aktif              : 1
+  - Selesai            : 7
+  - Overdue (Denda)    : 0
+Total iPhone           : 7
+Rata-rata/Transaksi    : Rp975.000
+iPhone Terpopuler       : iPhone 15 Pro Max (3x)
+
+=== RINCIAN PER IPHONE ===
+  1. iPhone 14 Plus (IP005)
+     Total Sewa : 0
+     Pendapatan : Rp0
+  2. iPhone 15 Pro (IP004)
+     Total Sewa : 1
+     Pendapatan : Rp1.000.000
+  3. iPhone 15 Pro Max (IP003)
+     Total Sewa : 3
+     Pendapatan : Rp3.750.000
+  4. iPhone 16 Pro (IP002)
+     Total Sewa : 1
+     Pendapatan : Rp825.000
+  5. iPhone 16 Pro Max (IP001)
+     Total Sewa : 2
+     Pendapatan : Rp1.800.000
+  6. iPhone SE 3 (IP006)
+     Total Sewa : 1
+     Pendapatan : Rp1.250.000
+  7. iPhone 16 Pro Max (IP007)
+     Total Sewa : 0
+     Pendapatan : Rp0
+
+=== RINCIAN PER USER ===
+  1. Administrator (ADM001)
+     Transaksi  : 0
+     Total Bayar: Rp0
+  2. Andi Pratama (USR001)
+     Transaksi  : 2
+     Total Bayar: Rp1.425.000
+  3. Siti Rahma (USR002)
+     Transaksi  : 2
+     Total Bayar: Rp1.750.000
+  4. Budi Santoso (USR003)
+     Transaksi  : 2
+     Total Bayar: Rp2.950.000
+  5. Dewi Lestari (USR004)
+     Transaksi  : 1
+     Total Bayar: Rp1.250.000
+  6. sigma (USR006)
+     Transaksi  : 1
+     Total Bayar: Rp1.250.000
+  7. zidan (USR007)
+     Transaksi  : 0
+     Total Bayar: Rp0
+  8. zidan (USR008)
+     Transaksi  : 0
+     Total Bayar: Rp0
+  9. nah itu dia (USR009)
+     Transaksi  : 0
+     Total Bayar: Rp0
+
+=====================================
+File ini dihasilkan secara otomatis.

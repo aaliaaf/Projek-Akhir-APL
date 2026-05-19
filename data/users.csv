@@ -6,3 +6,5 @@ USR003,Budi Santoso,08333333333,budi,budipass,customer,true,Jl. Anggrek No.3,Sur
 USR004,Dewi Lestari,08444444444,dewi,dewipass,customer,false,Jl. Melati No.7,Yogyakarta,55123
 USR006,sigma,12345678910,sigma,sigma,customer,false,Jl. Test,Test,12345
 USR007,zidan,123445678123,zidan,0211,customer,false,jln. pemuda 1,samarinda,123213
+USR008,zidan,23213123213,jawa,jawa,admin,false,jln pemdua,samarinda,1781
+USR009,nah itu dia,12345678910,nah itu dia,wah,admin,false,jln sigma,bpp,17117

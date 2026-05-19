@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include <limits>
 using namespace std;
 
@@ -164,4 +165,28 @@ void logAudit(const string& action, const string& detail) {
     if (!file.is_open()) return;
     file << "[" << getCurrentDateTime() << "] " << action << ": " << detail << endl;
     file.close();
+}
+
+string formatNumber(long long value) {
+    bool negative = value < 0;
+    unsigned long long v = negative ? -value : value;
+    string s = to_string(v);
+    string out;
+    int count = 0;
+    for (int i = (int)s.size() - 1; i >= 0; --i) {
+        out.push_back(s[i]);
+        ++count;
+        if (count == 3 && i > 0) {
+            out.push_back('.');
+            count = 0;
+        }
+    }
+    reverse(out.begin(), out.end());
+    if (negative) out.insert(out.begin(), '-');
+    return out;
+}
+
+string formatCurrency(float amount) {
+    long long v = static_cast<long long>(amount + 0.5f);
+    return string("Rp") + formatNumber(v);
 }

@@ -196,13 +196,71 @@ void cancelReservation() {
         return;
     }
 
-    cout << "Masukkan ID Reservasi yang akan dibatalkan: ";
-    string id;
-    getline(cin, id);
+    int waitingIdx[MAX_RESERVATIONS];
+    int waitingCount = 0;
+    for (int i = 0; i < jumlahReservasi; i++) {
+        if (daftarReservasi[i].status == "waiting") {
+            waitingIdx[waitingCount] = i;
+            waitingCount++;
+        }
+    }
 
-    int idx = findReservasiByID(id);
+    if (waitingCount == 0) {
+        cout << "Tidak ada reservasi yang menunggu untuk dibatalkan." << endl;
+        pressEnter();
+        return;
+    }
+
+    Table table;
+    table.add_row({"No", "ID", "User", "iPhone", "Tgl Reservasi", "Prioritas"});
+
+    for (int i = 0; i < waitingCount; i++) {
+        int idx = waitingIdx[i];
+        int phoneIdx = findiPhoneByID(daftarReservasi[idx].iphoneID);
+        string phoneName = phoneIdx != -1 ? daftarIPhone[phoneIdx].name : "Unknown";
+        int userIdx = findUserIndexByID(daftarReservasi[idx].userID);
+        string userName = userIdx != -1 ? daftarUser[userIdx].name : daftarReservasi[idx].userID;
+
+        table.add_row({
+            toString(i + 1),
+            daftarReservasi[idx].reservationID,
+            userName,
+            phoneName,
+            daftarReservasi[idx].reservationDate,
+            daftarReservasi[idx].priority
+        });
+    }
+
+    table.column(0).format().width(5);
+    table.column(1).format().width(10);
+    table.column(2).format().width(16);
+    table.column(3).format().width(20);
+    table.column(4).format().width(14);
+    table.column(5).format().width(10);
+
+    cout << "Daftar reservasi menunggu:" << endl;
+    cout << table << endl;
+
+    cout << "Pilih reservasi yang dibatalkan (nomor/ID, 0 untuk batal): ";
+    string input;
+    getline(cin, input);
+    if (isCancelInput(input)) {
+        cout << "Pembatalan dibatalkan." << endl;
+        pressEnter();
+        return;
+    }
+
+    int idx = -1;
+    int nomor;
+    stringstream ss(input);
+    if (ss >> nomor && ss.eof() && nomor >= 1 && nomor <= waitingCount) {
+        idx = waitingIdx[nomor - 1];
+    } else {
+        idx = findReservasiByID(input);
+    }
+
     if (idx == -1) {
-        cout << "Reservasi dengan ID \"" << id << "\" tidak ditemukan!" << endl;
+        cout << "Reservasi tidak ditemukan!" << endl;
         pressEnter();
         return;
     }
@@ -233,13 +291,71 @@ void processReservationManually() {
         return;
     }
 
-    cout << "Masukkan ID Reservasi yang akan diproses: ";
-    string id;
-    getline(cin, id);
+    int waitingIdx[MAX_RESERVATIONS];
+    int waitingCount = 0;
+    for (int i = 0; i < jumlahReservasi; i++) {
+        if (daftarReservasi[i].status == "waiting") {
+            waitingIdx[waitingCount] = i;
+            waitingCount++;
+        }
+    }
 
-    int idx = findReservasiByID(id);
+    if (waitingCount == 0) {
+        cout << "Tidak ada reservasi yang menunggu diproses." << endl;
+        pressEnter();
+        return;
+    }
+
+    Table table;
+    table.add_row({"No", "ID", "User", "iPhone", "Tgl Reservasi", "Prioritas"});
+
+    for (int i = 0; i < waitingCount; i++) {
+        int idx = waitingIdx[i];
+        int phoneIdx = findiPhoneByID(daftarReservasi[idx].iphoneID);
+        string phoneName = phoneIdx != -1 ? daftarIPhone[phoneIdx].name : "Unknown";
+        int userIdx = findUserIndexByID(daftarReservasi[idx].userID);
+        string userName = userIdx != -1 ? daftarUser[userIdx].name : daftarReservasi[idx].userID;
+
+        table.add_row({
+            toString(i + 1),
+            daftarReservasi[idx].reservationID,
+            userName,
+            phoneName,
+            daftarReservasi[idx].reservationDate,
+            daftarReservasi[idx].priority
+        });
+    }
+
+    table.column(0).format().width(5);
+    table.column(1).format().width(10);
+    table.column(2).format().width(16);
+    table.column(3).format().width(20);
+    table.column(4).format().width(14);
+    table.column(5).format().width(10);
+
+    cout << "Daftar reservasi menunggu:" << endl;
+    cout << table << endl;
+
+    cout << "Pilih reservasi (nomor/ID, 0 untuk batal): ";
+    string input;
+    getline(cin, input);
+    if (isCancelInput(input)) {
+        cout << "Proses dibatalkan." << endl;
+        pressEnter();
+        return;
+    }
+
+    int idx = -1;
+    int nomor;
+    stringstream ss(input);
+    if (ss >> nomor && ss.eof() && nomor >= 1 && nomor <= waitingCount) {
+        idx = waitingIdx[nomor - 1];
+    } else {
+        idx = findReservasiByID(input);
+    }
+
     if (idx == -1) {
-        cout << "Reservasi dengan ID \"" << id << "\" tidak ditemukan!" << endl;
+        cout << "Reservasi tidak ditemukan!" << endl;
         pressEnter();
         return;
     }
@@ -252,7 +368,7 @@ void processReservationManually() {
 
     daftarReservasi[idx].status = "processed";
     saveReservations();
-    logAudit("PROCESS_RESERVATION", "ID: " + id);
+    logAudit("PROCESS_RESERVATION", "ID: " + daftarReservasi[idx].reservationID);
     cout << "Reservasi berhasil diproses." << endl;
     pressEnter();
 }

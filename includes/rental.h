@@ -27,6 +27,11 @@ void displayRentalsByStatus(const string& status);
 void searchRentalsByUser();
 void displayUserRentals(const string& userID);
 void generateReport();
+void generateReportOverview();
+void generateReportMonthly();
+void generateReportByPhone();
+void generateReportByUser();
+bool exportFullReport();
 void loadRentals();
 void saveRentals();
 

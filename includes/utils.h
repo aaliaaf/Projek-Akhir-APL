@@ -56,4 +56,8 @@ void logAudit(const string& action, const string& detail);
 
 bool isCancelInput(const string& input);
 
+// Format number/currency for reports
+string formatNumber(long long value);
+string formatCurrency(float amount);
+
 #endif

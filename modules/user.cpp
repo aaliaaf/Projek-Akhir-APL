@@ -244,12 +244,16 @@ void tambahUser() {
     cout << "Password: ";
     getline(cin, password);
 
-    // [MODUL 1] while loop + if untuk validasi role
+    // Pilih role dengan angka: 1=admin, 2=customer
     while (true) {
-        cout << "Role (admin/customer): ";
-        getline(cin, role);
-        if (role == "admin" || role == "customer") break; // [MODUL 1] Operator Logika: ||
-        cout << "Role harus 'admin' atau 'customer'!" << endl;
+        cout << "Role: 1. admin  2. customer" << endl;
+        cout << "Pilih (1-2): ";
+        string roleInput;
+        getline(cin, roleInput);
+        if (isCancelInput(roleInput)) { cout << "Penambahan dibatalkan." << endl; pressEnter(); return; }
+        if (roleInput == "1") { role = "admin"; break; }
+        if (roleInput == "2") { role = "customer"; break; }
+        cout << "Masukkan 1 atau 2!" << endl;
     }
 
     string jalan, kota, kodePos;
